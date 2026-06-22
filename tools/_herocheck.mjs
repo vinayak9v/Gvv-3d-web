@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const H = parseInt(process.argv[2]||'900');
+const b = await chromium.launch({ channel:'msedge' });
+const p = await b.newPage({ viewport:{width:1366,height:H} });
+await p.goto('http://localhost:3000/', { waitUntil:'networkidle' });
+await p.waitForTimeout(7000);
+await p.evaluate(()=>window.scrollTo(0,0));
+await p.waitForTimeout(500);
+await p.screenshot({ path:`hero-top-${H}.png` });
+console.log('DONE H='+H);
+await b.close();

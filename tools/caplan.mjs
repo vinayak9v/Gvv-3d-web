@@ -1,0 +1,15 @@
+import { chromium } from 'playwright';
+const url = process.argv[2] || 'http://192.168.1.5:3000';
+const browser = await chromium.launch({ channel: 'msedge' });
+const page = await browser.newPage({ viewport: { width: 1400, height: 1000 }, deviceScaleFactor: 1 });
+const msgs = [];
+page.on('console', (m) => msgs.push(`[${m.type()}] ${m.text()}`));
+page.on('pageerror', (e) => msgs.push('PAGEERR> ' + e.message));
+page.on('requestfailed', (r) => msgs.push('REQFAIL> ' + r.url() + ' :: ' + (r.failure()?.errorText||'')));
+await page.goto(url, { waitUntil: 'networkidle' });
+await page.waitForTimeout(8000);
+await page.screenshot({ path: 'lan-full.png' });
+console.log('URL:', url);
+console.log(msgs.slice(-40).join('\n'));
+await browser.close();
+console.log('DONE');

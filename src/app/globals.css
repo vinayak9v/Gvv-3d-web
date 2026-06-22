@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+:root {
+  --brand-blue-top: #0a1233;
+  --brand-blue-bot: #1e2b75;
+  --brand-yellow: #F5C842;
+  --brand-yellow-hot: #ffd76a;
+  --brand-cyan: #5BC0EB;
+}
+
+@theme inline {
+  --color-brand-blue-top: var(--brand-blue-top);
+  --color-brand-blue-bot: var(--brand-blue-bot);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-brand-cyan: var(--brand-cyan);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html, body { margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  background: var(--brand-blue-top);
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bg-brand-gradient {
+  background: linear-gradient(180deg, #0a1233 0%, #1e2b75 100%);
+}
+
+.gate-card {
+  transition: transform 0.4s ease-out, filter 0.4s ease-out;
+  filter: drop-shadow(0 0 6px rgba(91, 192, 235, 0.35));
+  will-change: transform, filter;
+}
+.gate-card:hover {
+  transform: scale(1.03);
+  filter:
+    drop-shadow(0 0 14px rgba(91, 192, 235, 0.85))
+    drop-shadow(0 0 28px rgba(91, 192, 235, 0.45));
+}
+/* sliding double-door gate effect */
+.gate-door {
+  background:
+    linear-gradient(180deg, rgba(91,192,235,0.08) 0%, transparent 6%, transparent 94%, rgba(91,192,235,0.08) 100%),
+    linear-gradient(135deg, #1a2a6a 0%, #050a20 100%);
+  transition: transform 0.55s cubic-bezier(0.65, 0, 0.35, 1);
+  will-change: transform;
+}
+.gate-door-left {
+  border-right: 1px solid rgba(91, 192, 235, 0.7);
+  box-shadow: inset -10px 0 18px rgba(0,0,0,0.55);
+}
+.gate-door-right {
+  border-left: 1px solid rgba(91, 192, 235, 0.7);
+  box-shadow: inset 10px 0 18px rgba(0,0,0,0.55);
+}
+.gate-card:hover .gate-door-left {
+  transform: translateX(-100%);
+}
+.gate-card:hover .gate-door-right {
+  transform: translateX(100%);
+}
+
+.hero-drag-path {
+  stroke-dasharray: 120;
+  stroke-dashoffset: 120;
+}
+
+.school-cloud {
+  animation: school-cloud-drift 5.5s ease-in-out infinite alternate;
+  filter: drop-shadow(0 12px 22px rgba(255, 255, 255, 0.14));
+  will-change: transform;
+}
+
+@keyframes school-cloud-drift {
+  from {
+    transform: translate3d(-28px, 4px, 0);
+  }
+  to {
+    transform: translate3d(34px, -8px, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .school-cloud {
+    animation: none;
+  }
+}
+
+.submit-btn {
+  transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+}
+.submit-btn:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 24px rgba(245, 200, 66, 0.55);
+}
+
+/* ── Vision-card "light-streak phase" teleport ───────────────────────────
+   Hover: a clean cyan energy glow + a single bright light streak sweeping
+   across (.is-charging). Click: GSAP compresses the card to a thin bright line
+   of light, flashes, then the streak expands away — the .is-phasing class adds
+   the intense cyan/white glow that makes the compressed card read as light. */
+.vision-card-wrap {
+  position: relative;
+  will-change: transform, filter;
+}
+
+/* Hover — cyan energize glow + one light-streak sweep. */
+.vision-card-wrap.is-charging {
+  filter:
+    drop-shadow(0 0 10px rgba(0, 225, 255, 0.55))
+    drop-shadow(0 0 24px rgba(0, 170, 255, 0.32));
+}
+.vision-card-wrap.is-charging::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  border-radius: 1rem;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    transparent 38%,
+    rgba(200, 250, 255, 0.85) 50%,
+    transparent 62%
+  );
+  mix-blend-mode: screen;
+  animation: gvv-streak-sweep 0.6s ease-out 1;
+}
+
+/* Click — GSAP drives the compress/expand; this just supplies the hot glow so
+   the thin compressed card looks like a bar of light. */
+.vision-card-wrap.is-phasing {
+  z-index: 30;
+}
+
+@keyframes gvv-streak-sweep {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  20%  { opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vision-card-wrap.is-charging::after {
+    animation: none;
+    display: none;
+  }
+}

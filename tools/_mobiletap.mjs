@@ -1,0 +1,21 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ channel:'msedge' });
+const p = await b.newPage({ viewport:{width:390,height:844}, deviceScaleFactor:2, isMobile:true, hasTouch:true });
+await p.goto('http://localhost:3000/', { waitUntil:'networkidle' });
+await p.waitForTimeout(2500);
+const card = p.locator('.card-1');
+await card.scrollIntoViewIfNeeded();
+await p.waitForTimeout(700);
+await p.screenshot({ path:'tap-0-rest.png' });
+// tap (touch) the card and grab frames during the teleport
+const box = await card.boundingBox();
+await p.touchscreen.tap(box.x + box.width/2, box.y + box.height/2);
+await p.waitForTimeout(150);
+console.log('class@150:', await card.getAttribute('class').catch(()=>'(gone)'));
+await p.screenshot({ path:'tap-1.png' });
+await p.waitForTimeout(160);
+await p.screenshot({ path:'tap-2.png' });
+await p.waitForTimeout(800);
+console.log('url:', p.url());
+await b.close();
+console.log('DONE');
