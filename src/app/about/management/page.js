@@ -107,7 +107,7 @@ const Management = () => {
           <div className="w-full lg:w-5/12 relative group">
             <div className="absolute inset-0 bg-blue-600 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
             <img 
-              src="https://images.unsplash.com/photo-1560250097-0b93528c311a?q=80&w=1974&auto=format&fit=crop" 
+              src="/img/photo-1560250097-0b93528c311a.webp" 
               alt="Mr. Mohanlal Ji Bagora" 
               className="relative rounded-2xl border border-[#1E2B7A] shadow-[0_0_20px_rgba(59,130,246,0.3)] object-cover w-full aspect-[4/5]"
             />
@@ -129,7 +129,7 @@ const Management = () => {
           <div className="w-full lg:w-5/12 relative group">
             <div className="absolute inset-0 bg-[#FACC15] rounded-2xl blur-xl opacity-10 group-hover:opacity-30 transition duration-500"></div>
             <img 
-              src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=1974&auto=format&fit=crop" 
+              src="/img/photo-1519085360753-af0119f7cbe7.webp" 
               alt="Mr. Santosh Bagora" 
               className="relative rounded-2xl border border-[#1E2B7A] shadow-[0_0_20px_rgba(59,130,246,0.3)] object-cover w-full aspect-[4/5]"
             />
@@ -151,7 +151,7 @@ const Management = () => {
           <div className="w-full lg:w-5/12 relative group">
             <div className="absolute inset-0 bg-blue-600 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
             <img 
-              src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=1976&auto=format&fit=crop" 
+              src="/img/photo-1573496359142-b8d87734a5a2.webp" 
               alt="Mrs. Rama Sharma" 
               className="relative rounded-2xl border border-[#1E2B7A] shadow-[0_0_20px_rgba(59,130,246,0.3)] object-cover w-full aspect-[4/5]"
             />
@@ -173,7 +173,7 @@ const Management = () => {
           <div className="w-full lg:w-5/12 relative group">
             <div className="absolute inset-0 bg-[#FACC15] rounded-2xl blur-xl opacity-10 group-hover:opacity-30 transition duration-500"></div>
             <img 
-              src="https://images.unsplash.com/photo-1537511446984-935f663eb1f4?q=80&w=2070&auto=format&fit=crop" 
+              src="/img/photo-1537511446984-935f663eb1f4.webp" 
               alt="Mr. Madhav Mantri" 
               className="relative rounded-2xl border border-[#1E2B7A] shadow-[0_0_20px_rgba(59,130,246,0.3)] object-cover w-full aspect-[4/5]"
             />

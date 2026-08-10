@@ -31,7 +31,7 @@ export default function Character({
   dimEmissiveMaterials,
 }: Props) {
   const group = useRef<THREE.Group>(null)
-  const { scene, animations } = useGLTF(url)
+  const { scene, animations } = useGLTF(url, '/draco/')
   const { actions, names } = useAnimations(animations, group)
   const currentAction = useRef<string | null>(null)
 

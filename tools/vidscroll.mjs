@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ channel: 'msedge' });
+const p = await b.newPage({ viewport:{width:1366,height:768} });
+await p.goto('http://localhost:3000/',{waitUntil:'load'}); await p.waitForTimeout(2500);
+const before = await p.evaluate(()=>document.querySelector('video')?.getAttribute('src')||'NONE');
+await p.evaluate(()=>window.scrollTo(0,1600)); await p.waitForTimeout(1500);
+const after = await p.evaluate(()=>document.querySelector('video')?.getAttribute('src')||'NONE');
+console.log('SRC_before_scroll', before);
+console.log('SRC_after_scroll', after);
+await b.close();

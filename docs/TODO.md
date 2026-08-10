@@ -5,6 +5,52 @@ Actionable checklist. See [`PROGRESS.md`](./PROGRESS.md) for context and
 
 ---
 
+## 🆕 Lab high-quality re-render + proper camera tour — logged 2026-06-25
+
+> Old `lab.webm` was 720p EEVEE, lossy/pixelated, and the camera only hovered
+> at the doorway (never toured). Re-doing at higher quality with a real tour.
+
+- [x] Benchmarked engines on `camera lab.blend` (1080p, 1 frame): **Cycles/CPU
+      dual-Xeon = 42.7s (fastest + richest)**, EEVEE/GPU 59.5s, Cycles/GPU 736s
+      (8GB VRAM thrash). Decision: render **Cycles · CPU · 1080p**.
+- [x] Diagnosed old tour: camera pinned at `(0,-1.6→0,0.2)`, tiny pan + loop,
+      visits no station. Also old `render_lab.py` used `frame_end=360`@30fps vs
+      the file's 372@24fps → truncated + sped up.
+- [x] Built **Hybrid 8-station tour** (glide + eased slow-downs) in
+      `tools/tour_build.py` / `tour_finalize.py`; station framing verified
+      (`tools/_tour/S1..S9`). Stations: establishing → left robot → robotic hands
+      → central robot+sign (hero) → dismantled body → engines → student/AR desk →
+      counter island descent → ease back wide.
+- [x] Built Hybrid tour test blend — **user rejected the keyframe changes**
+      (2026-06-25). Decision: **keep the ORIGINAL camera animation** (372 frames
+      @24fps, untouched in `camera lab.blend`); just render it beautifully +
+      slightly more saturated so it's not dull. (Tour scripts kept in `tools/`
+      for reference; `../camera lab_TOUR_TEST.blend` is obsolete, can delete.)
+- [x] Current `lab.webm` measured = **120 frames · 24fps · 5s · 1280x720**
+      (that's why it scrubs smoothly). New render matches the 120-frame count,
+      sampled evenly from the original 372-frame camera animation.
+- [x] User picked params from 1440p samples (`tools/_s1440/`): **1440p · 120
+      frames · original path · +30% saturation.** Measured 1440p = 90.5s/frame,
+      ETA ~3.0 hrs.
+- [x] **Fonts redone** — original labels were baked text-meshes (9 `typeMesh*`
+      objects, no font datablock). Rebuilt each as real text via
+      `tools/integrated_render.py` logic. User chose **Orbitron**
+      (`../fonts/Orbitron.ttf`, downloaded w/ Rajdhani/Exo2). Tamed emission
+      (TEXT_GLOW 10→3.5, ROBOTICS-LAB sign `lambert7.001` 50→7, subtitle
+      `lambert7` 5→2.2 — were over-glowing). Hero title+subtitle placed at
+      ABSOLUTE positions inside sign plate `lab_4:pCube32` (0.252w x 0.070h,
+      z[0.298..0.368]) so they can't overflow. Saturation lowered to **+25%**.
+- [x] **Final render DONE** (`tools/lab_final2.py`): 120 frames, 2560x1440,
+      Cycles/CPU 64spp, Orbitron + label/emission fixes.
+- [x] Encoded → VP9 24fps `eq=saturation=1.25` crf24 = **9.9MB**; backed up old
+      as `public/lab_old720_backup.webm`, swapped into `public/lab.webm`.
+- [x] **Verified** scrub on `/robotics` (`tools/caprobotics.mjs`) — 2560x1440,
+      scrubs, no errors. **Lab task complete.**
+- [ ] (Later, separate) robot assembly/disassembly re-render at higher quality.
+- [ ] (Later, separate) robot assembly/disassembly re-render at 1080p.
+
+---
+
 ## ✅ Done (2026-06-18 → 06-19)
 - [x] Thruster exhaust flames match the reference render (`SchoolModelBanner.tsx`)
 - [x] Model floats beneath the cloud layer (was clipping into clouds)
@@ -279,3 +325,10 @@ Actionable checklist. See [`PROGRESS.md`](./PROGRESS.md) for context and
   `allowedDevOrigins` in `next.config.ts`, then restart. (Production is unaffected.)
 - Verify any visual change with screenshots (`node tools/cap.mjs <name>`) before
   reporting it done.
+
+---
+
+## Production start — 2026-06-26
+- [x] `npx prisma generate` (Prisma Client v6.16.2 regenerated)
+- [x] `npm run build` (production build OK — 24 static pages, 2 dynamic API routes)
+- [x] `npm start` (serving on http://localhost:3000 — HTTP 200 verified; LAN http://10.0.0.251:3000)

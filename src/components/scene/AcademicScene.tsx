@@ -272,15 +272,19 @@ function ScrollDriver({
   useFrame((state) => {
     const t = state.clock.elapsedTime
 
-    state.camera.position.set(0, 2.4, 200)
-    state.camera.lookAt(0, 2.2, -2)
-
     // Keep both characters inside the frustum and centred at any aspect ratio.
     // The horizontal FOV is vfov × aspect, so on narrow/portrait screens the
-    // fixed ±80 placement fell off the sides (the scene looked like it never
-    // loaded on mobile). Pull them toward centre as the viewport narrows.
+    // characters fell off the sides / got cut (esp. iPhone portrait). Pull them
+    // toward centre as the viewport narrows AND dolly the camera back so both
+    // (each ~±46u wide around its centre) stay fully on-screen. Landscape/desktop
+    // hits the z=200 floor, so its framing is unchanged.
     const aspect = state.size.width / Math.max(state.size.height, 1)
-    const sep = Math.min(80, Math.max(32, 60 * aspect))
+    const sep = Math.min(80, Math.max(30, 60 * aspect))
+    const vfov = THREE.MathUtils.degToRad((state.camera as THREE.PerspectiveCamera).fov)
+    const halfNeeded = sep + 46
+    const dist = Math.max(200, halfNeeded / (Math.tan(vfov / 2) * Math.max(aspect, 0.01)))
+    state.camera.position.set(0, 2.4, dist)
+    state.camera.lookAt(0, 2.2, -2)
 
     if (robotGroup.current) {
       robotGroup.current.position.x = -sep

@@ -1,5 +1,5 @@
 'use client';
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -25,14 +25,52 @@ gsap.registerPlugin(ScrollTrigger, useGSAP);
  */
 export default function ScrubVideo({
   src,
-  title,
-  subtitle,
+  title = '',
+  subtitle = '',
   objectFit = 'cover',
   className = '',
   pingPong = false,
+  poster = '',
 }) {
   const container = useRef(null);
   const videoRef = useRef(null);
+  // Don't download the (multi-MB) clip on initial page load — it's usually far
+  // down the page. Start fetching only when the section is within ~2 viewports,
+  // so the hero/3D model gets the bandwidth first and the clip is buffered by the
+  // time the user scrolls to it. (preload="auto" still fully buffers once mounted,
+  // which is required for smooth scrubbing.)
+  const [shouldLoad, setShouldLoad] = useState(false);
+  useEffect(() => {
+    const el = container.current;
+    if (!el || shouldLoad) return;
+    // Deterministic scroll-position gate (NOT IntersectionObserver — that fires
+    // during initial layout before the tall 3D canvas sets page height, falsely
+    // latching the load). Start fetching once the section is within ~2 viewports
+    // of the current scroll position, giving it lead time to buffer.
+    const check = () => {
+      // Only act once the user has actually scrolled — at scrollY 0 the layout
+      // may still be settling (dynamic ssr:false hero), and these clips are always
+      // below the fold, so there's nothing to eagerly load at the top anyway.
+      if (window.scrollY <= 0) return;
+      const top = el.getBoundingClientRect().top;
+      if (top < window.innerHeight * 2) {
+        setShouldLoad(true);
+        window.removeEventListener('scroll', check);
+        window.removeEventListener('resize', check);
+      }
+    };
+    window.addEventListener('scroll', check, { passive: true });
+    window.addEventListener('resize', check);
+    // Safe one-shot check after layout settles — handles a reload that restores
+    // scroll position already near/at this section (no scroll event fires then).
+    // The scrollY>0 guard inside check() keeps it from loading at the top.
+    const t = setTimeout(check, 1200);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener('scroll', check);
+      window.removeEventListener('resize', check);
+    };
+  }, [shouldLoad]);
 
   useGSAP(
     () => {
@@ -87,26 +125,28 @@ export default function ScrubVideo({
   return (
     <section
       ref={container}
-      className={`relative flex h-[100svh] w-full items-center justify-center overflow-hidden bg-black ${className}`}
+      className={`relative flex h-[100svh] w-full items-center justify-center overflow-hidden bg-black bg-cover bg-center ${className}`}
+      style={poster ? { backgroundImage: `url(${poster})` } : undefined}
     >
       <video
         ref={videoRef}
         className="absolute inset-0 h-full w-full"
         style={{ objectFit }}
-        src={src}
+        src={shouldLoad ? src : undefined}
+        poster={poster || undefined}
         muted
         playsInline
         preload="auto"
       />
       {(title || subtitle) && (
-        <div className="pointer-events-none relative z-10 px-6 text-center mix-blend-difference">
+        <div className="pointer-events-none absolute inset-x-0 bottom-10 z-10 px-6 text-center mix-blend-difference md:bottom-14">
           {title && (
             <h2 className="text-5xl font-black tracking-tighter text-white md:text-7xl lg:text-8xl">
               {title}
             </h2>
           )}
           {subtitle && (
-            <p className="mt-4 font-mono text-lg text-blue-300 md:text-2xl">
+            <p className="font-mono text-lg text-blue-300 md:text-2xl">
               {subtitle}
             </p>
           )}

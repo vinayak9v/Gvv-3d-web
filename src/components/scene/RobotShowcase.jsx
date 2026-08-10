@@ -11,7 +11,7 @@ const ROBOT_Y = -1.2;
 
 function Robot({ progressRef }) {
   const group = useRef(null);
-  const { scene } = useGLTF('/models/robot.glb');
+  const { scene } = useGLTF('/models/robot.glb', '/draco/');
   useFrame(() => {
     if (group.current) {
       group.current.rotation.y = (progressRef.current || 0) * Math.PI * 2;
@@ -20,7 +20,7 @@ function Robot({ progressRef }) {
   return <primitive ref={group} object={scene} scale={ROBOT_SCALE} position={[0, ROBOT_Y, 0]} />;
 }
 
-useGLTF.preload('/models/robot.glb');
+useGLTF.preload('/models/robot.glb', '/draco/');
 
 export default function RobotShowcase({ progressRef }) {
   return (

@@ -115,7 +115,9 @@ function SchoolModel({
   rotationTarget: MutableRefObject<RotationTarget>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF(MODEL_URL);
+  // Self-hosted Draco decoder ('/draco/') — NOT the gstatic CDN (which hangs on
+  // some ISPs and blocks the whole scene from rendering/scrolling).
+  const { scene } = useGLTF(MODEL_URL, '/draco/');
   const thrustMaterialsRef = useRef<THREE.ShaderMaterial[]>([]);
 
   const model = useMemo(() => {
@@ -341,7 +343,7 @@ export default function SchoolModelBanner() {
         className="relative w-full h-[380px] sm:h-[500px] md:h-[600px] lg:h-[680px] overflow-visible"
       >
         <img
-          src="/claud_clean.png?v=3"
+          src="/claud_clean.webp"
           alt=""
           className="school-cloud pointer-events-none absolute left-[12%] top-[-30%] z-30 w-[60%] max-w-[600px] animate-[school-cloud-drift_5.5s_ease-in-out_infinite_alternate] opacity-80 sm:left-[16%] sm:top-[-26%] md:left-[20%] md:top-[-22%] lg:w-[50%]"
           aria-hidden
@@ -398,36 +400,36 @@ export default function SchoolModelBanner() {
             {/* Own Suspense (fallback: nothing) so the HDR loads WITHOUT blocking
                 the model paint — fixes the mobile "stuck on spinner" freeze. */}
             <Suspense fallback={null}>
-              <Environment preset="sunset" background={false} />
+              <Environment files="/hdri/venice_sunset_1k.hdr" background={false} />
             </Suspense>
           </Canvas>
           )}
         </div>
       </div>
 
-      {/* Drag controls sit right under the model (the wavy separator was removed
-          and the section height tightened) so the handle is in view on first load
-          on both phone and desktop. */}
-      <button
-        type="button"
-        className="drag-handle mt-3 z-10 mx-auto w-12 h-12 bg-[#e2e8f0] rounded-full flex items-center justify-center cursor-ew-resize shadow-md touch-none"
-        aria-label="Rotate school model"
-        onPointerDown={(event) => {
-          event.currentTarget.setPointerCapture(event.pointerId);
-          startDrag(event.clientX, event.clientY);
-        }}
-        onPointerMove={(event) => moveDrag(event.clientX, event.clientY)}
-        onPointerUp={(event) => {
-          event.currentTarget.releasePointerCapture(event.pointerId);
-          stopDrag();
-        }}
-      >
-        <Menu className="text-gray-500" size={24} strokeWidth={2.5} />
-      </button>
-
-      <p className="drag-text text-white text-xs sm:text-sm mt-3 font-bold tracking-wide">
-        &lt; Drag To View &gt;
-      </p>
+      {/* Drag controls overlaid in the lower-right of the hero so they're visible
+          without scrolling, on both phone and desktop. */}
+      <div className="absolute top-[62%] right-[7%] sm:top-[58%] sm:right-[12%] z-20 flex flex-col items-center gap-1">
+        <button
+          type="button"
+          className="drag-handle w-12 h-12 bg-[#e2e8f0] rounded-full flex items-center justify-center cursor-ew-resize shadow-md touch-none"
+          aria-label="Rotate school model"
+          onPointerDown={(event) => {
+            event.currentTarget.setPointerCapture(event.pointerId);
+            startDrag(event.clientX, event.clientY);
+          }}
+          onPointerMove={(event) => moveDrag(event.clientX, event.clientY)}
+          onPointerUp={(event) => {
+            event.currentTarget.releasePointerCapture(event.pointerId);
+            stopDrag();
+          }}
+        >
+          <Menu className="text-gray-500" size={24} strokeWidth={2.5} />
+        </button>
+        <p className="drag-text text-white text-xs sm:text-sm font-bold tracking-wide drop-shadow">
+          &lt; Drag To View &gt;
+        </p>
+      </div>
     </div>
   );
 }
@@ -435,5 +437,5 @@ export default function SchoolModelBanner() {
 // Every device now mounts the Canvas and renders the real model, so prefetch the
 // GLB everywhere to shorten time-to-first-paint of the hero.
 if (typeof window !== 'undefined') {
-  useGLTF.preload(MODEL_URL);
+  useGLTF.preload(MODEL_URL, '/draco/');
 }

@@ -1,0 +1,12 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ channel: 'msedge' });
+const p = await b.newPage({ viewport:{width:1366,height:768} });
+const errs=[]; const local=[];
+p.on('pageerror',e=>errs.push('PAGEERR> '+e.message));
+p.on('response',r=>{ const u=r.url(); if(/\/(hdri|draco)\/|school\.glb/.test(u)) local.push(r.status()+' '+u.split('/').slice(-2).join('/')); });
+await p.goto('http://localhost:3000/',{waitUntil:'load'});
+await p.waitForTimeout(5000);
+console.log('ASSETS', JSON.stringify(local));
+console.log('ERRS', errs.slice(0,4).join(' | ')||'none');
+await p.screenshot({path:'tools/_verifylab/home_local.png'});
+await b.close();

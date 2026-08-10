@@ -1,0 +1,17 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ channel: 'msedge' });
+const p = await b.newPage({ viewport:{width:1366,height:768} });
+const t0=Date.now();
+const starts=new Map();
+const ext=[], pending=new Set();
+p.on('request',r=>{ const u=r.url(); if(!u.includes('localhost')&&!u.startsWith('data:')){ starts.set(u,Date.now()); pending.add(u);} });
+p.on('requestfinished',r=>{ const u=r.url(); if(starts.has(u)){ ext.push(((Date.now()-starts.get(u)))+'ms '+u.slice(0,110)); pending.delete(u);} });
+p.on('requestfailed',r=>{ const u=r.url(); if(starts.has(u)){ ext.push('FAILED '+(r.failure()?.errorText||'')+' '+u.slice(0,90)); pending.delete(u);} });
+await p.goto('http://localhost:3000/robotics',{waitUntil:'load'});
+console.log('LOAD_ms', Date.now()-t0);
+await p.waitForTimeout(8000);
+console.log('=== EXTERNAL (non-localhost) REQUESTS ===');
+ext.forEach(x=>console.log('  '+x));
+console.log('=== STILL PENDING after 8s ===');
+[...pending].forEach(u=>console.log('  PENDING '+u.slice(0,110)));
+await b.close();

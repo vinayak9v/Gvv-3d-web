@@ -1,0 +1,16 @@
+import { chromium } from 'playwright';
+const TAG = process.argv[2] || 'cur';
+const DRAG = +(process.argv[3] || 360);
+const b = await chromium.launch({ channel: 'msedge' });
+const p = await b.newPage({ viewport:{width:1100,height:760}, deviceScaleFactor:2 });
+await p.goto('http://localhost:3000/',{waitUntil:'load'});
+await p.waitForTimeout(4500);
+await p.evaluate(()=>{ document.querySelectorAll('.school-cloud').forEach(e=>e.style.display='none'); });
+const cx=550, cy=380;
+await p.mouse.move(cx,cy); await p.mouse.down();
+await p.mouse.move(cx+DRAG, cy, { steps: 12 });
+await p.mouse.up();
+await p.waitForTimeout(1000);
+await p.screenshot({ path:`tools/_rot/text_${TAG}.png`, clip:{x:170,y:230,width:760,height:300} });
+console.log('TEXT_SHOT', TAG, 'drag', DRAG);
+await b.close();

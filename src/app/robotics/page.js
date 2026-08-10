@@ -109,8 +109,8 @@ export default function RoboticsPage() {
 
       {/* ================= LAB FLY-THROUGH SECTION ================= */}
       <ScrubVideo
-        src="/lab.webm"
-        title="INSIDE THE LAB"
+        src="/lab.mp4"
+        poster="/lab_poster.webp"
         subtitle="[ SCROLL TO EXPLORE ]"
         className="border-y border-blue-500/20"
       />

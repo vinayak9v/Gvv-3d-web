@@ -118,7 +118,7 @@ export default function VisionCards() {
 
               <div className="relative w-full h-[350px] flex justify-center items-center mb-6 overflow-hidden">
                 <img
-                  src="/MAIN OBJECT 1.png"
+                  src="/main-object-1.webp"
                   alt={`${card.title} Illustration`}
                   className="relative z-0 w-full h-full object-contain drop-shadow-[0_0_15px_rgba(79,70,229,0.5)] transition-all duration-500"
                 />

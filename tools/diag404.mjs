@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ channel: 'msedge' });
+const p = await b.newPage({ viewport:{width:1366,height:768} });
+const bad=[];
+p.on('response',r=>{ if(r.status()>=400) bad.push(r.status()+' '+r.url()); });
+await p.goto('http://localhost:3000/robotics',{waitUntil:'load'});
+await p.waitForTimeout(1000);
+console.log('BAD_RESPONSES', bad.length);
+bad.slice(0,15).forEach(x=>console.log('  '+x));
+await b.close();

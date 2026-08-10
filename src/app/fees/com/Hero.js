@@ -28,7 +28,7 @@ export default function Hero() {
             {/* Mobile Dark Overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-[#020B3D] via-[#020B3D]/95 to-transparent lg:hidden z-10" />
             <Image
-              src="/io - Copy.png" // Replace with your actual student/school background image
+              src="/io-copy.webp" // Replace with your actual student/school background image
               alt="Student at Garima Vidhya Vihar"
               fill
               priority

@@ -98,7 +98,7 @@ const BookList = () => {
         <div className="relative w-full h-64 md:h-80 overflow-hidden">
           {/* Using a high-quality abstract colorful image as a placeholder */}
           <img 
-            src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2070&auto=format&fit=crop" 
+            src="/img/photo-1550684848-fac1c5b4e853.webp" 
             alt="Colorful Abstract Banner" 
             className="w-full h-full object-cover opacity-60"
           />

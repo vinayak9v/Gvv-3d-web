@@ -81,7 +81,7 @@ const Affiliation = () => {
           <div className="w-full lg:w-1/2 relative group">
             <div className="absolute inset-0 bg-blue-600 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
             <img 
-              src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop" 
+              src="/img/photo-1523050854058-8df90110c9f1.webp" 
               alt="School Campus showing official accreditation status" 
               className="relative rounded-2xl border border-[#1E2B7A] shadow-[0_0_20px_rgba(59,130,246,0.3)] object-cover w-full h-[400px]"
             />
@@ -125,7 +125,7 @@ const Affiliation = () => {
           <div className="w-full lg:w-1/2 relative group">
             <div className="absolute inset-0 bg-[#FACC15] rounded-2xl blur-xl opacity-10 group-hover:opacity-30 transition duration-500"></div>
             <img 
-              src="https://images.unsplash.com/photo-1577896851231-70ef18881754?q=80&w=2070&auto=format&fit=crop" 
+              src="/img/photo-1577896851231-70ef18881754.webp" 
               alt="Modern school infrastructure" 
               className="relative rounded-2xl border border-[#1E2B7A] shadow-[0_0_20px_rgba(59,130,246,0.3)] object-cover w-full h-[400px]"
             />
@@ -170,7 +170,7 @@ const Affiliation = () => {
           <div className="w-full lg:w-1/2 relative group">
             <div className="absolute inset-0 bg-blue-600 rounded-2xl blur-xl opacity-20 group-hover:opacity-40 transition duration-500"></div>
             <img 
-              src="https://images.unsplash.com/photo-1503676260728-1c00da094a0b?q=80&w=2022&auto=format&fit=crop" 
+              src="/img/photo-1503676260728-1c00da094a0b.webp" 
               alt="Students focused on quality education" 
               className="relative rounded-2xl border border-[#1E2B7A] shadow-[0_0_20px_rgba(59,130,246,0.3)] object-cover w-full h-[400px]"
             />

@@ -38,7 +38,7 @@ export default function Hero() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#020B3D] via-[#020B3D]/90 to-transparent lg:hidden z-10" />
           
           <Image
-            src="/scc.png"
+            src="/scc.webp"
             alt="Students at Garima Vidhya Vihar"
             fill
             priority

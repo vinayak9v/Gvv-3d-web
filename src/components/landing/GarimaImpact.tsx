@@ -275,7 +275,7 @@ export default function GarimaImpact() {
       {/* Pulled up with a negative margin (+ higher z) so the torn-paper PNG's
           transparent top OVERLAPS the section above it — you see that section
           through the rip, instead of a flat dark band mixing at the seam. */}
-      <section ref={impactRef} className="relative z-20 -mt-20 md:-mt-32 w-full min-h-screen py-16 px-4 md:px-12 flex flex-col items-center justify-center bg-[url('/Group%209.png')] bg-cover bg-bottom bg-no-repeat">
+      <section ref={impactRef} className="relative z-20 -mt-20 md:-mt-32 w-full min-h-screen py-16 px-4 md:px-12 flex flex-col items-center justify-center bg-[url('/group-9.webp')] bg-cover bg-bottom bg-no-repeat">
 
         <h2 className="impact-heading text-black text-3xl md:text-4xl font-bold tracking-wide mb-12 md:mb-16 text-center">
           Garima Impact
@@ -307,7 +307,8 @@ export default function GarimaImpact() {
       {/* Robot disassembly fly-through — scroll-scrubbed, full clip plays forward
           (disassemble → reassemble). Sits directly above "Innovation At Garima". */}
       <ScrubVideo
-        src="/robot_assembly.webm"
+        src="/robot_assembly.mp4"
+        poster="/robot_assembly_poster.webp"
         objectFit="cover"
         pingPong
       />

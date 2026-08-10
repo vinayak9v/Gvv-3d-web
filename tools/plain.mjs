@@ -1,0 +1,10 @@
+import { chromium } from 'playwright';
+const b = await chromium.launch({ channel: 'msedge' });
+const p = await b.newPage({ viewport:{width:1366,height:768} });
+const errs=[];
+p.on('pageerror',e=>errs.push(e.message));
+p.on('response',r=>{ if(r.status()>=400 && /hdr|webp|glb/.test(r.url())) errs.push('404 '+r.url().split('/').pop()); });
+await p.goto('http://localhost:3000/',{waitUntil:'load'}); await p.waitForTimeout(6000);
+await p.screenshot({ path:'tools/_plain_home.png' });
+console.log('ERRS', errs.slice(0,5).join(' | ')||'none');
+await b.close();

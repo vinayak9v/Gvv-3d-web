@@ -16,6 +16,20 @@ const nextConfig: NextConfig = {
     '192.168.*.*',
     '10.0.*.*',
   ],
+  // Let Cloudflare (and browsers) cache the heavy static media at the edge, so a
+  // proxied/tunnelled origin isn't re-fetching the whole clip on every load.
+  // NOTE: filenames here are stable, so if you re-encode lab.mp4 you must bump
+  // its name (e.g. lab-v2.mp4) or purge the Cloudflare cache to avoid stale video.
+  async headers() {
+    return [
+      {
+        source: '/:file*.(mp4|webm|glb|gltf|hdr|wasm)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -4,6 +4,241 @@ A running record of bugs/errors, their root cause, and the fix. Newest first.
 
 ---
 
+## 2026-06-26 — Optimization batch 3 + hero sky discovery
+
+- **#2 school.glb textures 2048→1024:** 11.5→9MB (identical at hero scale).
+- **#4 lab.mp4 1440p→1080p** all-intra crf26: 7.3→6MB (lighter mobile decode).
+- **#6 removed unused deps:** `leva`, `@react-three/postprocessing` (0 imports;
+  postprocessing freed by the bloom revert). `npm uninstall`, build still green.
+- **#5/#9:** three.js already code-split (academic `dynamic`, robotics no 3D);
+  `next/font` already swaps — made `display:"swap"` explicit.
+- **HERO SUNSET SKY:** the home hero's intended background (`hero-bg.webp`, a
+  sunset sky matching the artist render) had **never loaded** — its original file
+  `ChatGPT Image Jun 5, 2026, 01_07_51 PM.png` (spaces+commas) silently failed in
+  `next start` (same bug as Group 9.png). Converting to `hero-bg.webp` made it
+  load. **User chose to KEEP the sky** (matches reference render #5). The
+  dark-blue look was the broken fallback.
+- **#1 static-image hero — not done (impractical):** the 3D hero's camera is
+  fixed, so the model's screen position/size varies per viewport aspect; a single
+  static overlay would misalign across devices. The sky bg now gives the
+  instant-paint benefit anyway (sky+clouds paint immediately while the model
+  loads). #3 manual preload skipped (useGLTF.preload already prefetches; bad
+  preload key = double download).
+
+Home payload now ~12MB real (was ~29MB at session start); public/ 93→35MB.
+
+---
+
+## 2026-06-26 — Robot-assembly scrub section goes black on mobile
+
+**Symptom:** robot-assembly `ScrubVideo` sometimes doesn't load, or loads then
+goes black on scroll (mobile/responsive).
+
+**Cause:** (1) a *paused* `<video>` scrolled out of view gets its decoded frame
+evicted by mobile browsers → black (no poster). (2) lazy-load gate only fired on
+scroll, so a reload already-scrolled-near-it never triggered load.
+
+**Fix (`ScrubVideo.jsx`):** added `poster` prop — set as the `<video poster>` AND
+the section `background-image` (so it's never pure black, falls back to frame 1).
+Posters: `public/{robot_assembly,lab}_poster.webp` (34/100KB), passed from
+`GarimaImpact.tsx` + `robotics/page.js`. Also added a safe one-shot
+`setTimeout(check,1200)` initial load check (scrollY>0 guard keeps it from
+loading at the top). Verify on real device.
+
+---
+
+## 2026-06-26 — Bloom revert + asset optimization pass 2
+
+- **Reverted bloom** (it blew out the school model / made the canvas container
+  visible) — removed `EffectComposer`/`Bloom`, exposure 1.2→1.05, dropped
+  `environmentIntensity`. Back to the prior (better) look.
+- **Local PNGs → WebP** (`ghj`, `scc`, `io-copy`, `main-object-1`, `hero-bg` ex
+  "ChatGPT Image…", `group-9`): **~7.2MB → ~0.6MB**. Updated all refs.
+- **Group 9.png 404:** `next start` won't serve filenames with **spaces**
+  (`url('/Group%209.png')`). Converted → `group-9.webp`, fixed bg ref.
+- **Unsplash → self-hosted WebP:** 8 images downloaded to `public/img/*.webp`
+  (724KB total), URLs rewritten in 4 pages. One photo
+  (`photo-1523050854058…`) is **404 on Unsplash** (was already broken live) →
+  aliased to a working school image.
+- **`robot_assembly.webm` → `.mp4`** (H.264 all-intra, faststart): 8.8→6.8MB,
+  hardware-decoded. Ref updated in `GarimaImpact.tsx`. Already lazy-loaded.
+- **Cleanup:** public/ **93MB → 38MB** (removed unused originals; backups in
+  `tools/_backups/unused_public/`).
+- Tex-downscale preview (school.glb textures 2048→1024 = 11.5→9.8MB) is visually
+  identical at hero scale but only ~1.7MB — left undeployed pending decision.
+
+---
+
+## 2026-06-26 — School model "missing resources" look + UI fixes + asset cleanup
+
+- **"Missing resources" school model:** NOT a stripped-asset bug — current
+  `school.glb` is structurally identical to original (same emissive/specular
+  exts, 22 mats, 23 textures). It's a *rendering* gap vs the artist's offline
+  render: no bloom + cool exposure made the emissive wood slats render flat.
+  Fix in `SchoolModelBanner.tsx`: added `@react-three/postprocessing` **Bloom**
+  (mipmapBlur, threshold 0.65, intensity 0.7), exposure 1.05→1.2,
+  `environmentIntensity={1.25}`. Slats + cyan thrusters now glow like the ref.
+  (Note: postprocessing v3.0.4 uses `enableNormalPass`, not `disableNormalPass`.)
+- **Drag-model button offscreen** (had to scroll): was in normal flow below the
+  680px hero. Moved to `absolute top-[62%] right-[7%] sm:top-[58%]` overlay →
+  in view on desktop (top 708<768) + mobile. 
+- **Lab overlay text:** removed `title="INSIDE THE LAB"` (robotics page); moved
+  the `[ SCROLL TO EXPLORE ]` caption from dead-centre to `absolute bottom-10`
+  in `ScrubVideo.jsx`.
+- **Clouds "take 15-20s":** false alarm — big cloud is `claud_clean.webp` (30KB),
+  small clouds 0.27+0.11MB; clouds are instant. The 15-20s is the 11MB
+  `school.glb` decode (clouds just paint first). CSS drift anim is free.
+- **Asset cleanup:** removed ~45MB unused files from `public/` (claud.png 6MB,
+  `models/mainn.glb` 16MB, `models/school_original.glb` 16.7MB, vid.webm, io.png,
+  etc. — exact-grep confirmed 0 refs). public/ 93→48MB. Backups in
+  `tools/_backups/unused_public/`.
+
+---
+
+## 2026-06-26 — /academic slow load + iPhone character cutoff
+
+- **Slow load:** `boy.glb` was **completely uncompressed** (12.8MB, no Draco/meshopt,
+  no textures — pure geometry, 3 anims clap/idle/wave). →
+  `gltf-transform optimize --compress draco --simplify false --texture-compress false`
+  → **12.8MB → 1.95MB** (anims preserved; joined 108→37 meshes, palette-merged
+  mats). With `robot.glb` (1.76MB), `/academic` model payload **~14.6MB → ~3.7MB**.
+  Verified renders correctly desktop + mobile. Original in `tools/_backups/`.
+- **iPhone cutoff:** `AcademicScene.tsx` camera was fixed at `z=200`; on portrait
+  the two characters (~±46u wide) overflowed the narrow frustum and got cut. Fix:
+  **dolly the camera back as aspect narrows** — `dist = max(200, (sep+46) /
+  (tan(vfov/2)·aspect))` — so both stay fully on-screen. Landscape hits the z=200
+  floor → desktop framing unchanged. Verified iPhone (390×844) + desktop.
+
+---
+
+## 2026-06-25 — Load-time optimization pass (home 10s / lab 15s LOCAL → much faster)
+
+User clarified the 10-15s was **localhost** (processing), tunnel adds more
+(download). Measured payloads (`tools/sizes.mjs`) + GLB composition
+(`gltf-transform inspect`). Findings + fixes:
+
+- **`school.glb` = 8.5M verts / 280 meshes, Draco.** Heavy decode + GPU upload +
+  shader compile. → `gltf-transform optimize --compress draco` (joins meshes too).
+  ⚠️ **First attempt `--simplify-error 0.008` GARBLED the building's "GARIMA VIDHYA
+  VIHAR SR SCHOOL" text** (0.8% of the ~540u bbox ≈ 4u > letter features → letters
+  collapsed: "ARIMA … /R /CHODL"). **Fix: tighten error to `0.0005`** — the error
+  bound (not the ratio) protects fine detail, so flat areas still decimate hard
+  while text stays crisp. Final: `--simplify-ratio 0.3 --simplify-error 0.0005
+  --texture-size 2048` → **16.7MB → 10MB**, text legible (verified by rotating the
+  model to its back: `tools/textcheck.mjs`). Self-hosted Draco path kept.
+  **Lesson: GLB simplify-error must be tight enough to preserve text/decals;
+  always verify text-bearing faces, not just the hero angle.**
+- **`robot.glb`** (lab) Draco 3.8MB → **meshopt 1.7MB** (meshopt decoder is
+  bundled, fast).
+- **`claud_clean.png` 3.2MB** (hero cloud, shown ≤600px, was 2816px) → **WebP w/
+  alpha 30KB** (`SchoolModelBanner.tsx` src → `/claud_clean.webp`).
+- **Scrub videos eagerly downloaded on load** (`robot_assembly.webm` 8.6MB on
+  HOME; `lab.mp4` 7.3MB on robotics). → `ScrubVideo.jsx` now lazy-loads: `src`
+  gated by `shouldLoad`, set via a **scroll-position** check (NOT
+  IntersectionObserver/timeout — both fire during the dynamic ssr:false hero's
+  unstable initial layout and falsely load). Loads when section within 2
+  viewports; verified deferred at top, loads+scrubs on scroll.
+
+Result: **home initial payload ~29MB → ~14MB** (5MB + 9MB model; robot video
+deferred), school model decode much faster (¼ geometry). Backups parked in
+`tools/_backups/`. Still TODO: re-encode `robot_assembly.webm` to H.264/MP4
+1080p all-intra like lab.mp4; lazy-load/defer `school.glb` further if needed.
+
+---
+
+## 2026-06-25 — ROOT CAUSE of "~1 min load, no scroll until it loads" (PC + mobile)
+
+**Symptom:** school model takes a minute+, lab first-load breaks, no scroll until
+it finally loads — on PC and mobile, not a caching issue.
+
+**Root cause (found via network instrumentation, `tools/netdiag.mjs`):** the 3D
+scene fetched **external CDN assets that hang on some ISPs/regions**, and R3F
+`<Suspense>` blocks the scene (and the page becoming interactive/scrollable) until
+they resolve:
+- `<Environment preset="sunset">` (drei) → HDR from `raw.githack.com` **and**
+  `raw.githubusercontent.com` (the githubusercontent one was **still PENDING after
+  8s** even on a good connection).
+- Draco decoder for the Draco-compressed `school.glb` → `www.gstatic.com/draco/...`
+  (`draco_wasm_wrapper.js` + `draco_decoder.wasm`). Without it the model can't
+  decompress. `robot.glb` hit the same path.
+
+Browser fetches these **directly** (not via the Cloudflare tunnel), so the tunnel
+was a red herring; the hang is the external CDNs.
+
+**Fix — self-host everything:**
+- `public/hdri/venice_sunset_1k.hdr`; `SchoolModelBanner.tsx` →
+  `<Environment files="/hdri/venice_sunset_1k.hdr">` (not `preset`).
+- `public/draco/{draco_wasm_wrapper.js,draco_decoder.wasm}` (v1.5.5 to match drei);
+  pass local decoder path to every `useGLTF(..., '/draco/')` +
+  `useGLTF.preload(..., '/draco/')` in `SchoolModelBanner`, `RobotShowcase`,
+  `Character`.
+- `next.config.ts` `headers()` long-cache extended to `glb|gltf|hdr|wasm` too.
+
+**Verified (`tools/netdiag.mjs`):** home + `/robotics` now make **0 external
+requests**; all assets 200 from local origin; model renders w/ HDR lighting; no
+errors. This removes the multi-second/minute stall on every network.
+
+---
+
+## 2026-06-25 — Lab fly-through re-rendered: 1440p, Cycles, Orbitron fonts
+
+**Goal:** old `public/lab.webm` was 720p EEVEE, dull/pixelated, plain fonts.
+
+**What was done**
+- **Engine:** benchmarked — Cycles on **CPU (dual Xeon, 88 threads) = 42.7s/frame
+  @1080p**, beating EEVEE/GPU (59.5s) and Cycles/GPU (736s — 8GB VRAM thrash).
+  Render on CPU, never GPU, for this 15.3M-tri scene. (See `tools/_bench` notes.)
+- **Camera:** kept the **original** animation (built a Hybrid 8-station tour first;
+  user rejected it). Matched the existing webm's **120 frames / 24fps / 5s**,
+  sampled evenly from the original 372-frame path (old `render_lab.py` had wrongly
+  truncated 372→360 @30fps).
+- **Fonts:** labels were baked text-meshes (9 `typeMesh*`, no font datablock).
+  Rebuilt each as a real text object in **Orbitron** (`../fonts/Orbitron.ttf`).
+  Tamed over-bright emission (TEXT_GLOW 10→3.5, sign `lambert7.001` 50→7,
+  subtitle `lambert7` 5→2.2). Hero title+subtitle placed at ABSOLUTE positions
+  inside sign plate `lab_4:pCube32` (z[0.298..0.368]) so they can't overflow.
+- **Output:** 2560×1440 PNG (Cycles 64spp) → VP9 24fps, `eq=saturation=1.25`.
+  Backed up old as `public/lab_old720_backup.webm`.
+- **Scrub-smoothness bug + fix:** first encode used VP9 default GOP → **only 1
+  keyframe**, so `ScrubVideo` (`src/components/shared/ScrubVideo.jsx`) seeks
+  (`video.currentTime = progress*duration`, and skips updates while
+  `video.seeking`) had to decode from frame 0 every seek → stuttered and stalled
+  ~3.3s, never reaching the end. **Fix: re-encode ALL-INTRA (`-g 1 -keyint_min 1`)
+  — every frame a keyframe (matches the old video's 120 keyframes)** → instant
+  seeks, smooth 0→5.0s monotonic ramp. crf30→27MB, crf34→**21MB (shipped)**,
+  crf38→17MB. Rule: scroll-scrubbed clips MUST be all-intra.
+- **STILL laggy + slow load after all-intra:** 1440p **VP9 software-decodes**
+  in browsers (no HW path) → heavy per-seek decode = lag on PC + mobile; 21MB =
+  late load. **Fix: switch to H.264/MP4 @1080p, all-intra, `+faststart`.** H.264
+  hardware-decodes everywhere; 1080p cuts decode cost; smaller file loads fast.
+  `public/lab.mp4` = 1080p H.264 all-intra **11.4MB**; page `src` → `/lab.mp4`
+  (`src/app/robotics/page.js`). Removed unused `public/lab.webm`. Verified
+  `tools/caprobotics.mjs`: currentTime 0→5.0 monotonic, seeking=false.
+  Takeaway: scrub clips = **H.264 MP4, ~1080p, all-intra, faststart** (not VP9).
+- **"Slow load + no scroll over garima.tinu.pro (Cloudflare tunnel)":** NOT a
+  code bug — localhost was fast (load 487ms prod, video readyState 4, scroll OK,
+  scrub 0→5 monotonic). Cause: accessing **`next dev`** (unminified, on-demand,
+  uncacheable) **through a Cloudflare tunnel to a home machine** → JS/3D/video
+  all re-pulled over limited upload bandwidth each load; page can't scroll until
+  hydrated. Fixes: (1) `npm run build` + `npm start` (**production**, minified,
+  cacheable) — needed a one-line fix first: `ScrubVideo` `title`/`subtitle` lacked
+  defaults → TS build error in `GarimaImpact.tsx`; gave them `= ''`. (2) Added
+  `headers()` in `next.config.ts` → `Cache-Control: public, max-age=31536000,
+  immutable` for `*.mp4|*.webm` so Cloudflare caches the clip at edge (was
+  `max-age=0` = re-tunnelled every load). (3) Video 11→**7MB** (1080p crf24).
+  Caveat: stable filenames + immutable cache → bump name / purge CF cache when
+  re-encoding. Inherent limit: tunnelling a self-host has bandwidth/latency caps;
+  real fix for public use = deploy to Vercel/CF Pages.
+- **Pre-existing (separate):** navbar prefetches 404 — `/about/{staff,strength,
+  committee,vision,mission,establishment,quality}` are linked but not built.
+- **Verified** scrub on `/robotics` (`tools/caprobotics.mjs`): video 2560×1440,
+  currentTime advances with scroll, no errors.
+- Scripts: `tools/lab_final2.py` (render), `tools/integrated_render.py` (single
+  frame), `tools/font_samples.py`. Blender 5.1: EEVEE id is `BLENDER_EEVEE`;
+  Action fcurves via `action.layers[].strips[].channelbags[]`.
+
+---
+
 ## 2026-06-22 — Mobile page CRASH when scrolling into the robot scrub video
 
 **Symptom (real device):** on a phone, scrolling down to the robot disassembly

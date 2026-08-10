@@ -88,7 +88,7 @@ export default function Hero() {
       ref={ref}
       className="relative flex flex-col items-center justify-center min-h-[75vh] px-4 text-center w-full bg-cover bg-center bg-no-repeat overflow-hidden"
       style={{
-        backgroundImage: "url('/ChatGPT Image Jun 5, 2026, 01_07_51 PM.png')",
+        backgroundImage: "url('/hero-bg.webp')",
       }}
     >
       <Navbar />

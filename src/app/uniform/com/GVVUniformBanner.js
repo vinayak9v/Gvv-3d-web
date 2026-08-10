@@ -94,7 +94,7 @@ export default function UniformPage() {
             <div className="relative z-20 w-[780px] h-[780px] rounded-full overflow-hidden">
 
               <Image
-                src="/ghj.png"
+                src="/ghj.webp"
                 alt="GVV Uniform"
                 fill
                 priority
