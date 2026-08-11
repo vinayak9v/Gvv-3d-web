@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { BookOpen, FileText, Pencil, Trash2, ExternalLink } from "lucide-react";
 
 export default function Curriculum() {
   const [items, setItems] = useState([]);
@@ -90,7 +91,12 @@ export default function Curriculum() {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-        <h3 className="text-lg font-semibold text-slate-800 mb-4">{editingId ? "Edit Curriculum" : "Add New Curriculum"}</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-violet-100 text-violet-600 flex items-center justify-center">
+            <BookOpen size={16} />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-800">{editingId ? "Edit Curriculum" : "Add New Curriculum"}</h3>
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4 items-end">
           <div className="flex-1 w-full">
             <label className="block text-sm font-medium text-slate-700 mb-1">Title</label>
@@ -101,7 +107,7 @@ export default function Curriculum() {
           <div className="flex-1 w-full">
             <label className="block text-sm font-medium text-slate-700 mb-1">{editingId ? "Upload New PDF (Optional)" : "Upload PDF"}</label>
             <input type="file" accept="application/pdf" ref={fileInputRef} onChange={(e) => setPdf(e.target.files[0])}
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white" required={!editingId} />
+              className="w-full border border-slate-300 rounded-lg px-3 py-1.5 bg-white file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" required={!editingId} />
           </div>
           <div className="flex gap-2 w-full md:w-auto">
             <button type="submit" disabled={saving}
@@ -122,33 +128,34 @@ export default function Curriculum() {
           <h3 className="text-lg font-semibold text-slate-800">Uploaded Curriculums</h3>
           <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">{items.length} Records</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Title</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">PDF File</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {items.length > 0 ? items.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-medium text-slate-800">{item.title}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <a href={item.pdf_url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 underline font-medium">View PDF</a>
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-3">
-                    <button onClick={() => handleEdit(item)} className="text-indigo-600 hover:text-indigo-900 font-medium">Edit</button>
-                    <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900 font-medium">Delete</button>
-                  </td>
-                </tr>
-              )) : (
-                <tr><td colSpan={3} className="px-6 py-12 text-center text-slate-400">No curriculums found.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {items.length === 0 ? (
+          <div className="px-6 py-12 text-center text-slate-400">No curriculums found.</div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {items.map((item) => (
+              <div key={item.id} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-violet-50 text-violet-600 flex items-center justify-center shrink-0">
+                  <FileText size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-slate-800 truncate">{item.title}</p>
+                  <a href={item.pdf_url} target="_blank" rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium mt-0.5">
+                    View PDF <ExternalLink size={11} />
+                  </a>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button onClick={() => handleEdit(item)} className="w-8 h-8 rounded-lg text-indigo-600 hover:bg-indigo-50 flex items-center justify-center">
+                    <Pencil size={15} />
+                  </button>
+                  <button onClick={() => handleDelete(item.id)} className="w-8 h-8 rounded-lg text-red-600 hover:bg-red-50 flex items-center justify-center">
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

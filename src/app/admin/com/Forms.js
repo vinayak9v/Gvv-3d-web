@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import { FileText, Pencil, Trash2, ExternalLink } from "lucide-react";
 
 export default function Forms() {
   const [items, setItems] = useState([]);
@@ -94,7 +95,12 @@ export default function Forms() {
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-        <h3 className="text-lg font-semibold text-slate-800 mb-4">{editingId ? "Edit Form" : "Add New Form"}</h3>
+        <div className="flex items-center gap-2 mb-4">
+          <div className="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+            <FileText size={16} />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-800">{editingId ? "Edit Form" : "Add New Form"}</h3>
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
@@ -106,7 +112,7 @@ export default function Forms() {
             <div className="flex-1">
               <label className="block text-sm font-medium text-slate-700 mb-1">{editingId ? "Update PDF (Optional)" : "Upload PDF"}</label>
               <input type="file" accept="application/pdf" ref={fileInputRef} onChange={(e) => setPdf(e.target.files[0])}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 bg-white" required={!editingId} />
+                className="w-full border border-slate-300 rounded-lg px-3 py-1.5 bg-white file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100" required={!editingId} />
             </div>
           </div>
           <div>
@@ -117,7 +123,7 @@ export default function Forms() {
           </div>
           <div className="flex gap-2">
             <button type="submit" disabled={saving}
-              className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60">
+              className="px-6 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-60 shadow-sm shadow-indigo-900/10">
               {saving ? "Saving..." : editingId ? "Update Form" : "Add Form"}
             </button>
             {editingId && (
@@ -134,35 +140,36 @@ export default function Forms() {
           <h3 className="text-lg font-semibold text-slate-800">Downloadable Forms</h3>
           <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-3 py-1 rounded-full border border-indigo-100">{items.length} Records</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-50 border-b border-slate-200">
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Title</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Size</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase">PDF</th>
-                <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {items.length > 0 ? items.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-6 py-4 text-sm font-bold text-slate-800">{item.title}</td>
-                  <td className="px-6 py-4 text-sm text-slate-500">{item.file_size}</td>
-                  <td className="px-6 py-4 text-sm">
-                    <a href={item.pdf_url} target="_blank" rel="noopener noreferrer" className="text-indigo-600 hover:text-indigo-800 underline font-medium">View PDF</a>
-                  </td>
-                  <td className="px-6 py-4 text-right space-x-3">
-                    <button onClick={() => handleEdit(item)} className="text-indigo-600 hover:text-indigo-900 font-medium">Edit</button>
-                    <button onClick={() => handleDelete(item.id)} className="text-red-600 hover:text-red-900 font-medium">Delete</button>
-                  </td>
-                </tr>
-              )) : (
-                <tr><td colSpan={4} className="px-6 py-12 text-center text-slate-400">No forms found.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {items.length === 0 ? (
+          <div className="px-6 py-12 text-center text-slate-400">No forms found.</div>
+        ) : (
+          <div className="divide-y divide-slate-100">
+            {items.map((item) => (
+              <div key={item.id} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 transition-colors">
+                <div className="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0">
+                  <FileText size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-bold text-slate-800 truncate">{item.title}</p>
+                  <p className="text-xs text-slate-500 truncate">{item.description}</p>
+                </div>
+                <span className="text-xs text-slate-400 font-medium shrink-0 hidden sm:block">{item.file_size}</span>
+                <a href={item.pdf_url} target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-xs text-indigo-600 hover:text-indigo-800 font-medium shrink-0">
+                  View <ExternalLink size={11} />
+                </a>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button onClick={() => handleEdit(item)} className="w-8 h-8 rounded-lg text-indigo-600 hover:bg-indigo-50 flex items-center justify-center">
+                    <Pencil size={15} />
+                  </button>
+                  <button onClick={() => handleDelete(item.id)} className="w-8 h-8 rounded-lg text-red-600 hover:bg-red-50 flex items-center justify-center">
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
