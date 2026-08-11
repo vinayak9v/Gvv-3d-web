@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import Navbar from '@/components/landing/Navbar';
 import Footer from '@/components/landing/Footer';
@@ -7,21 +7,38 @@ import Footer from '@/components/landing/Footer';
 const CurriculumPlanner = () => {
   const headerRef = useRef(null);
   const cardsRef = useRef([]);
-  
-  // Data provided in your prompt (corrected the duplicate S.No 4 to 5)
-  const curriculumData = [
-    { id: 1, title: "Syllabus NUR To UKG", link: "#" },
-    { id: 2, title: "Syllabus 1 To 5", link: "#" },
-    { id: 3, title: "Syllabus 6 To 8", link: "#" },
-    { id: 4, title: "Syllabus 9 To 10", link: "#" },
-    { id: 5, title: "Syllabus 11 To 12", link: "#" },
-  ];
+
+  const [curriculumData, setCurriculumData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const addToRefs = (el) => {
     if (el && !cardsRef.current.includes(el)) {
       cardsRef.current.push(el);
     }
   };
+
+  // Fetch curriculum PDFs uploaded via the admin panel.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/curriculum', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((result) => {
+        if (cancelled) return;
+        if (result.success) {
+          setCurriculumData(
+            result.data.map((item) => ({ id: item.id, title: item.title, link: item.pdf_url }))
+          );
+        } else {
+          setError(result.error || 'Failed to load curriculum planner');
+        }
+      })
+      .catch((err) => !cancelled && setError(err.message))
+      .finally(() => !cancelled && setIsLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     // GSAP Animation for the Header
@@ -30,22 +47,29 @@ const CurriculumPlanner = () => {
       { opacity: 0, y: -40 },
       { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
     );
-
-    // GSAP Staggered Animation for the Cards
-    gsap.fromTo(
-      cardsRef.current,
-      { opacity: 0, y: 50, scale: 0.9 },
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        duration: 0.8, 
-        stagger: 0.15, 
-        ease: 'power3.out', 
-        delay: 0.3 
-      }
-    );
   }, []);
+
+  useEffect(() => {
+    cardsRef.current = [];
+    if (curriculumData.length === 0) return;
+    // GSAP Staggered Animation for the Cards, re-run once fetched data renders.
+    const timer = setTimeout(() => {
+      gsap.fromTo(
+        cardsRef.current,
+        { opacity: 0, y: 50, scale: 0.9 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power3.out',
+          delay: 0.3
+        }
+      );
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [curriculumData]);
 
   return (
     <div>
@@ -71,18 +95,24 @@ const CurriculumPlanner = () => {
           </h1>
         </div>
 
+        {isLoading && <p className="text-center text-slate-400 mb-10">Loading curriculum planner...</p>}
+        {error && <p className="text-center text-red-400 mb-10">Could not load curriculum planner: {error}</p>}
+        {!isLoading && !error && curriculumData.length === 0 && (
+          <p className="text-center text-slate-400 mb-10">The curriculum planner will appear here once uploaded by the school.</p>
+        )}
+
         {/* Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
           {curriculumData.map((item, index) => (
-            <div 
-              key={item.id} 
+            <div
+              key={item.id}
               ref={addToRefs}
               // Hover effects handled by Tailwind for maximum performance
               className="group relative bg-[#0B113A] border border-[#1E2B7A] rounded-2xl p-8 flex flex-col items-center text-center shadow-[0_0_15px_rgba(30,58,138,0.3)] hover:shadow-[0_0_30px_rgba(59,130,246,0.5)] hover:-translate-y-2 transition-all duration-300 ease-in-out"
             >
               {/* Step/S.No Badge (Matches your Step 01, Step 02 design) */}
               <div className="text-blue-400 text-sm font-bold uppercase tracking-widest mb-6">
-                STEP 0{item.id}
+                STEP 0{index + 1}
               </div>
 
               {/* Glowing Icon Circular Container */}

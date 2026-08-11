@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Footer from '@/components/landing/Footer';
@@ -16,24 +16,9 @@ const BookList = () => {
   const wrapperRef = useRef(null);
   const contentRef = useRef(null);
 
-  // Data provided in your prompt
-  const bookListData = [
-    { id: 1, classes: "NURSERY", link: "#" },
-    { id: 2, classes: "LKG", link: "#" },
-    { id: 3, classes: "UKG", link: "#" },
-    { id: 4, classes: "I", link: "#" },
-    { id: 5, classes: "II", link: "#" },
-    { id: 6, classes: "III", link: "#" },
-    { id: 7, classes: "IV", link: "#" },
-    { id: 8, classes: "V", link: "#" },
-    { id: 9, classes: "VI", link: "#" },
-    { id: 10, classes: "VII", link: "#" },
-    { id: 11, classes: "VIII", link: "#" },
-    { id: 12, classes: "IX", link: "#" },
-    { id: 13, classes: "X", link: "#" },
-    { id: 14, classes: "XI", link: "#" },
-    { id: 15, classes: "XII", link: "#" },
-  ];
+  const [bookListData, setBookListData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const addToRefs = (el) => {
     if (el && !cardsRef.current.includes(el)) {
@@ -41,8 +26,30 @@ const BookList = () => {
     }
   };
 
+  // Fetch book lists uploaded via the admin panel (falls back to nothing if none yet).
   useEffect(() => {
-    /* 
+    let cancelled = false;
+    fetch('/api/books', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((result) => {
+        if (cancelled) return;
+        if (result.success) {
+          setBookListData(
+            result.data.map((item) => ({ id: item.id, classes: item.classes, link: item.pdf_url }))
+          );
+        } else {
+          setError(result.error || 'Failed to load book lists');
+        }
+      })
+      .catch((err) => !cancelled && setError(err.message))
+      .finally(() => !cancelled && setIsLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    /*
     // Uncomment this block if you have the premium GSAP Club License for ScrollSmoother
     ScrollSmoother.create({
       wrapper: wrapperRef.current,
@@ -58,33 +65,40 @@ const BookList = () => {
       { opacity: 0, y: -50 },
       { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }
     );
+  }, []);
 
-    // ScrollTrigger Animation for the Cards
-    // Cards will smoothly fade and slide up as you scroll down the page
-    cardsRef.current.forEach((card, index) => {
-      gsap.fromTo(
-        card,
-        { opacity: 0, y: 80, scale: 0.95 },
-        {
-          opacity: 1,
-          y: 0,
-          scale: 1,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: card,
-            start: 'top 90%', // Animation starts when top of card hits 90% of viewport
-            toggleActions: 'play none none reverse',
-          },
-        }
-      );
-    });
+  useEffect(() => {
+    // ScrollTrigger Animation for the Cards, re-run once fetched data renders the cards.
+    cardsRef.current = [];
+    if (bookListData.length === 0) return;
+
+    const timer = setTimeout(() => {
+      cardsRef.current.forEach((card) => {
+        gsap.fromTo(
+          card,
+          { opacity: 0, y: 80, scale: 0.95 },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 90%',
+              toggleActions: 'play none none reverse',
+            },
+          }
+        );
+      });
+      ScrollTrigger.refresh();
+    }, 0);
 
     return () => {
-      // Cleanup ScrollTriggers on unmount
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill());
+      clearTimeout(timer);
+      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, []);
+  }, [bookListData]);
 
   return (
     // Wrapper and Content divs are set up for ScrollSmoother if you activate it later
@@ -121,7 +135,17 @@ const BookList = () => {
             </h1>
           </div>
 
-          {/* 15 Cards Grid Layout */}
+          {isLoading && (
+            <p className="text-center text-slate-400 mb-10">Loading book lists...</p>
+          )}
+          {error && (
+            <p className="text-center text-red-400 mb-10">Could not load book lists: {error}</p>
+          )}
+          {!isLoading && !error && bookListData.length === 0 && (
+            <p className="text-center text-slate-400 mb-10">Book lists will appear here once added by the school.</p>
+          )}
+
+          {/* Cards Grid Layout */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 justify-center">
             {bookListData.map((item) => (
               <div 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
 import Navbar from '@/components/landing/Navbar';
 import Footer from '@/components/landing/Footer';
@@ -8,10 +8,31 @@ const AcademicCalendar = () => {
   const headerRef = useRef(null);
   const cardRef = useRef(null);
 
-  // Data provided in your prompt
-  const calendarData = [
-    { id: 1, title: "NURSERY TO 12 TH", link: "#" }
-  ];
+  const [calendarData, setCalendarData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Fetch academic calendar PDFs uploaded via the admin panel.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/calendar', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((result) => {
+        if (cancelled) return;
+        if (result.success) {
+          setCalendarData(
+            result.data.map((item) => ({ id: item.id, title: item.title, link: item.pdf_url }))
+          );
+        } else {
+          setError(result.error || 'Failed to load academic calendar');
+        }
+      })
+      .catch((err) => !cancelled && setError(err.message))
+      .finally(() => !cancelled && setIsLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     // GSAP Animation for the Header
@@ -20,21 +41,24 @@ const AcademicCalendar = () => {
       { opacity: 0, y: -40 },
       { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }
     );
+  }, []);
 
-    // GSAP Animation for the Single Card
+  useEffect(() => {
+    if (calendarData.length === 0) return;
+    // GSAP Animation for the Card(s), re-run once fetched data renders.
     gsap.fromTo(
       cardRef.current,
       { opacity: 0, y: 50, scale: 0.9 },
-      { 
-        opacity: 1, 
-        y: 0, 
-        scale: 1, 
-        duration: 0.8, 
-        ease: 'power3.out', 
-        delay: 0.3 
+      {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.8,
+        ease: 'power3.out',
+        delay: 0.3
       }
     );
-  }, []);
+  }, [calendarData]);
 
   return (
     <div>
@@ -59,8 +83,14 @@ const AcademicCalendar = () => {
           </h1>
         </div>
 
-        {/* Single Card Centered Layout */}
-        <div className="flex justify-center">
+        {isLoading && <p className="text-center text-slate-400 mb-10">Loading academic calendar...</p>}
+        {error && <p className="text-center text-red-400 mb-10">Could not load academic calendar: {error}</p>}
+        {!isLoading && !error && calendarData.length === 0 && (
+          <p className="text-center text-slate-400 mb-10">The academic calendar will appear here once uploaded by the school.</p>
+        )}
+
+        {/* Card(s) Centered Layout */}
+        <div className="flex flex-wrap justify-center gap-8">
           {calendarData.map((item) => (
             <div 
               key={item.id} 

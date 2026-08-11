@@ -1,90 +1,55 @@
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import pool from "@/lib/db";
 
-export async function POST(req: Request) {
+// GET API - Fetch all fee structures
+export async function GET() {
   try {
-    const body = await req.json();
-
-    const {
-      className,
-      installment1,
-      installment2,
-      installment3,
-      annualAllocation,
-      totalFee,
-    } = body;
-
-    if (
-      !className ||
-      installment1 === undefined ||
-      installment2 === undefined ||
-      installment3 === undefined ||
-      annualAllocation === undefined ||
-      totalFee === undefined
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "All fields are required",
-        },
-        { status: 400 }
-      );
-    }
-
-    const fee = await prisma.feeStructure.create({
-      data: {
-        className,
-        installment1: Number(installment1),
-        installment2: Number(installment2),
-        installment3: Number(installment3),
-        annualAllocation: Number(annualAllocation),
-        totalFee: Number(totalFee),
-      },
-    });
-
-    return NextResponse.json(
-      {
-        success: true,
-        message: "Fee added successfully",
-        data: fee,
-      },
-      { status: 201 }
-    );
-  } catch (error) {
-    console.error("CREATE FEE ERROR:", error);
-
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Failed to create fee",
-        error: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
-    );
+    // ID ke hisaab se sort kar rahe hain taaki classes line se aayein (Nursery, LKG, 1, 2, etc.)
+    const [rows] = await pool.query('SELECT * FROM fees ORDER BY id ASC');
+    return NextResponse.json({ success: true, data: rows }, { status: 200 });
+  } catch (error: any) {
+    console.error("GET Fees Error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-export async function GET() {
+// POST API - Add new fee structure
+export async function POST(request: Request) {
   try {
-    const fees = await prisma.feeStructure.findMany({
-      orderBy: {
-        id: "asc",
-      },
-    });
+    const body = await request.json();
+    const { className, installment1, installment2, installment3, annualAllocation } = body;
+
+    // Backend par total calculate karna safe hota hai
+    const totalFee =
+      Number(installment1 || 0) +
+      Number(installment2 || 0) +
+      Number(installment3 || 0) +
+      Number(annualAllocation || 0);
+
+    const query = `
+      INSERT INTO fees (className, installment1, installment2, installment3, annualAllocation, totalFee)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      className,
+      installment1 || 0,
+      installment2 || 0,
+      installment3 || 0,
+      annualAllocation || 0,
+      totalFee
+    ];
+
+    const [result]: any = await pool.query(query, values);
 
     return NextResponse.json({
       success: true,
-      data: fees,
-    });
-  } catch (error) {
-    console.error("GET FEES ERROR:", error);
+      message: "Fee structure added successfully",
+      insertId: result.insertId
+    }, { status: 201 });
 
-    return NextResponse.json(
-      {
-        success: false,
-        error: String(error),
-      },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    console.error("POST Fees Error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
-}   
+}

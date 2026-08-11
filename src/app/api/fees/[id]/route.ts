@@ -1,61 +1,65 @@
-import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import pool from "@/lib/db";
 
-export async function PUT(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// PUT API - Update existing fee structure
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const body = await req.json();
     const { id } = await params;
+    const body = await request.json();
+    const { className, installment1, installment2, installment3, annualAllocation } = body;
 
-    const fee = await prisma.feeStructure.update({
-      where: {
-        id: Number(id),
-      },
-      data: {
-        className: body.className,
-        installment1: body.installment1,
-        installment2: body.installment2,
-        installment3: body.installment3,
-        annualAllocation: body.annualAllocation,
-        totalFee: body.totalFee,
-      },
-    });
+    // Recalculate total safely
+    const totalFee =
+      Number(installment1 || 0) +
+      Number(installment2 || 0) +
+      Number(installment3 || 0) +
+      Number(annualAllocation || 0);
 
-    return NextResponse.json({
-      success: true,
-      data: fee,
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Failed to update fee" },
-      { status: 500 }
-    );
+    const query = `
+      UPDATE fees
+      SET className = ?, installment1 = ?, installment2 = ?, installment3 = ?, annualAllocation = ?, totalFee = ?
+      WHERE id = ?
+    `;
+
+    const values = [
+      className,
+      installment1 || 0,
+      installment2 || 0,
+      installment3 || 0,
+      annualAllocation || 0,
+      totalFee,
+      id
+    ];
+
+    const [result]: any = await pool.query(query, values);
+
+    if (result.affectedRows === 0) {
+      return NextResponse.json({ success: false, error: "Record not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: "Fee structure updated successfully" }, { status: 200 });
+
+  } catch (error: any) {
+    console.error("UPDATE Fees Error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
 
-export async function DELETE(
-  req: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+// DELETE API - Delete fee structure
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params;
 
-    await prisma.feeStructure.delete({
-      where: {
-        id: Number(id),
-      },
-    });
+    const [result]: any = await pool.query('DELETE FROM fees WHERE id = ?', [id]);
 
-    return NextResponse.json({
-      success: true,
-      message: "Fee deleted successfully",
-    });
-  } catch (error) {
-    return NextResponse.json(
-      { success: false, message: "Failed to delete fee" },
-      { status: 500 }
-    );
+    if (result.affectedRows === 0) {
+      return NextResponse.json({ success: false, error: "Record not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: "Fee structure deleted successfully" }, { status: 200 });
+
+  } catch (error: any) {
+    console.error("DELETE Fees Error:", error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

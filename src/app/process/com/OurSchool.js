@@ -1,18 +1,40 @@
-import React from 'react';
+"use client";
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 
+// Shown until the admin uploads real facilities via the admin panel (or if the API fails).
+const FALLBACK_FACILITIES = [
+  { name: "Modern Campus", image: "/facilities/campus.jpg" },
+  { name: "Smart Classrooms", image: "/facilities/classrooms.jpg" },
+  { name: "Robotics Lab", image: "/facilities/robotics.jpg" },
+  { name: "Science Lab", image: "/facilities/science.jpg" },
+  { name: "Library", image: "/facilities/library.jpg" },
+  { name: "Sports Ground", image: "/facilities/sports.jpg" },
+  { name: "Annual Function", image: "/facilities/function.jpg" },
+  { name: "Computer Lab", image: "/facilities/computer.jpg" },
+];
+
 export default function OurSchool() {
-  // Array of facilities
-  const facilities = [
-    { name: "Modern Campus", image: "/facilities/campus.jpg" },
-    { name: "Smart Classrooms", image: "/facilities/classrooms.jpg" },
-    { name: "Robotics Lab", image: "/facilities/robotics.jpg" },
-    { name: "Science Lab", image: "/facilities/science.jpg" },
-    { name: "Library", image: "/facilities/library.jpg" },
-    { name: "Sports Ground", image: "/facilities/sports.jpg" },
-    { name: "Annual Function", image: "/facilities/function.jpg" },
-    { name: "Computer Lab", image: "/facilities/computer.jpg" },
-  ];
+  const [facilities, setFacilities] = useState(FALLBACK_FACILITIES);
+
+  // Fetch facilities uploaded via the admin panel; fall back to the static set above.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/facilities', { cache: 'no-store' })
+      .then((res) => res.json())
+      .then((result) => {
+        if (cancelled) return;
+        if (result.success && result.data.length > 0) {
+          setFacilities(result.data.map((item) => ({ name: item.name, image: item.image_url })));
+        }
+      })
+      .catch(() => {
+        // Keep the fallback list on error.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Dusri row ke liye hum array ko reverse kar rahe hain taaki design thoda alag lage
   const reversedFacilities = [...facilities].reverse();
