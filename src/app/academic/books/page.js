@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Footer from '@/components/landing/Footer';
@@ -111,10 +112,11 @@ const BookList = () => {
         {/* Colorful Top Banner Image */}
         <div className="relative w-full h-64 md:h-80 overflow-hidden">
           {/* Using a high-quality abstract colorful image as a placeholder */}
-          <img 
-            src="/img/photo-1550684848-fac1c5b4e853.webp" 
-            alt="Colorful Abstract Banner" 
-            className="w-full h-full object-cover opacity-60"
+          <Image
+            src="/img/photo-1550684848-fac1c5b4e853.webp"
+            alt="Colorful Abstract Banner"
+            fill
+            className="object-cover opacity-60"
           />
           
           {/* Gradient Overlay to blend the image seamlessly into the dark background */}

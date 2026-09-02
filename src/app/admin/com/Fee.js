@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Wallet, Pencil, Trash2 } from "lucide-react";
 
 // ==========================================
 // 1. API Functions
@@ -193,7 +194,12 @@ export default function Fee() {
       {/* Fees Data Table */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-slate-800">Master Fee Structure</h3>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+              <Wallet size={16} />
+            </div>
+            <h3 className="text-lg font-semibold text-slate-800">Master Fee Structure</h3>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
@@ -221,9 +227,15 @@ export default function Fee() {
                     <td className="px-6 py-4 text-sm font-bold text-slate-800 bg-slate-50/50">
                       ₹{fee.totalFee.toLocaleString()}
                     </td>
-                    <td className="px-6 py-4 text-sm text-right space-x-3">
-                      <button onClick={() => openEditModal(fee)} className="text-indigo-600 hover:text-indigo-900 font-medium">Edit</button>
-                      <button onClick={() => handleDelete(fee.id)} className="text-red-600 hover:text-red-900 font-medium">Delete</button>
+                    <td className="px-6 py-4 text-sm text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <button onClick={() => openEditModal(fee)} className="w-8 h-8 rounded-lg text-indigo-600 hover:bg-indigo-50 flex items-center justify-center">
+                          <Pencil size={15} />
+                        </button>
+                        <button onClick={() => handleDelete(fee.id)} className="w-8 h-8 rounded-lg text-red-600 hover:bg-red-50 flex items-center justify-center">
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

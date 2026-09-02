@@ -59,7 +59,7 @@ export default function AdmissionForm() {
   };
 
   return (
-    <section className="bg-slate-50 py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <section id="enquiry" className="bg-slate-50 py-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       
       {/* Background subtle elements */}
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-blue-100/50 to-transparent pointer-events-none"></div>

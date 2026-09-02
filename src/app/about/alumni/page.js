@@ -17,6 +17,7 @@ export default function AlumniSection() {
       imageUrl: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=800&auto=format&fit=crop",
       description: "Stay connected with your alma mater. Join our exclusive global network to access career opportunities, mentorship programs, and upcoming reunion events.",
       actionText: "Register Now",
+      href: "/contact",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
@@ -28,6 +29,7 @@ export default function AlumniSection() {
       imageUrl: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800&auto=format&fit=crop",
       description: "Discover the inspiring journeys of our past students. Read firsthand accounts of how their foundational years shaped their professional and personal lives.",
       actionText: "Read Stories",
+      href: "/contact",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
@@ -39,6 +41,7 @@ export default function AlumniSection() {
       imageUrl: "https://images.unsplash.com/photo-1507676184212-d0330a15233c?q=80&w=800&auto=format&fit=crop",
       description: "Celebrate the exceptional milestones and global accolades earned by our distinguished alumni across diverse industries, from technology to the arts.",
       actionText: "View Achievements",
+      href: "/about/achievements",
       icon: (
         <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385c.148.621-.531 1.114-1.059.777l-4.69-2.997a.563.563 0 00-.536 0l-4.69 2.997c-.528.337-1.207-.156-1.059-.777l1.285-5.385a.563.563 0 00-.182-.557l-4.204-3.602c-.38-.325-.178-.95.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
@@ -126,12 +129,12 @@ export default function AlumniSection() {
 
                 {/* Action Button/Link */}
                 <div className="mt-auto">
-                  <button className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white font-semibold text-sm hover:bg-[#00c6ff] hover:border-[#00c6ff] hover:shadow-[0_10px_20px_rgba(0,198,255,0.3)] transition-all duration-300 flex items-center justify-center gap-2">
+                  <a href={item.href} className="w-full py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white font-semibold text-sm hover:bg-[#00c6ff] hover:border-[#00c6ff] hover:shadow-[0_10px_20px_rgba(0,198,255,0.3)] transition-all duration-300 flex items-center justify-center gap-2">
                     {item.actionText}
                     <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                     </svg>
-                  </button>
+                  </a>
                 </div>
               </div>
             </div>

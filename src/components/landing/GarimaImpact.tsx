@@ -367,9 +367,12 @@ export default function GarimaImpact() {
 
         </div>
 
-        <button className="inno-cta relative z-10 mt-16 bg-gradient-to-b from-[#fae27c] to-[#d6ad44] text-black font-bold text-sm tracking-wide px-10 py-3.5 rounded-md shadow-[0_5px_15px_rgba(0,0,0,0.3)] hover:scale-105 hover:brightness-110 transition-all duration-300 border border-[#b89539]">
+        <a
+          href="/admission"
+          className="inno-cta relative z-10 mt-16 inline-block bg-gradient-to-b from-[#fae27c] to-[#d6ad44] text-black font-bold text-sm tracking-wide px-10 py-3.5 rounded-md shadow-[0_5px_15px_rgba(0,0,0,0.3)] hover:scale-105 hover:brightness-110 transition-all duration-300 border border-[#b89539]"
+        >
           Apply For Admission
-        </button>
+        </a>
 
       </section>
     </div>

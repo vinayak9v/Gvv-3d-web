@@ -3,10 +3,22 @@ import { Canvas, useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
+import { Volume2, VolumeX } from 'lucide-react'
 import Character from './Character'
 import { DIALOGUE_STAGES } from './academicContent'
 
 type Dialogue = { title?: string; text: string } | null
+
+// Robot is scaled 8x vs the boy's 0.3x, so at a shared feet-at-y=0 baseline
+// its head/torso run well above the camera's lookAt height (2.2) and read as
+// sitting too high in frame. Pull it down; the boy needs no correction.
+const ROBOT_Y_OFFSET = -1.8
+const BOY_Y_OFFSET = 0
+
+// How much characters "punch in" while actively talking/reacting, and how
+// long that zoom gets to play before the caption text follows it in.
+const ACTIVE_SCALE = 1.12
+const DIALOGUE_DELAY_MS = 350
 
 function SceneWithAnimations() {
   const [dialogue, setDialogue] = useState<Dialogue>(null)
@@ -15,13 +27,86 @@ function SceneWithAnimations() {
   const [modelsReady, setModelsReady] = useState(false)
   const [openingComplete, setOpeningComplete] = useState(false)
   const [showHint, setShowHint] = useState(false)
+  const [muted, setMuted] = useState(false)
   const robotGroup = useRef<THREE.Group>(null!)
   const boyGroup = useRef<THREE.Group>(null!)
   const podiumRing = useRef<THREE.Mesh>(null!)
   const scrollProgress = useRef(0)
   const sceneWrapper = useRef<HTMLDivElement>(null)
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const mutedRef = useRef(false)
   const handleModelsReady = useCallback(() => {
     setModelsReady(true)
+  }, [])
+
+  useEffect(() => {
+    mutedRef.current = muted
+  }, [muted])
+
+  // Short two-note chime, synthesised on the fly so no audio asset is needed.
+  const playChime = useCallback(() => {
+    if (mutedRef.current) return
+    try {
+      const Ctx = window.AudioContext || (window as any).webkitAudioContext
+      if (!Ctx) return
+      const ctx = audioCtxRef.current ?? new Ctx()
+      audioCtxRef.current = ctx
+      if (ctx.state === 'suspended') ctx.resume()
+
+      const now = ctx.currentTime
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.type = 'sine'
+      osc.frequency.setValueAtTime(640, now)
+      osc.frequency.exponentialRampToValueAtTime(920, now + 0.14)
+      gain.gain.setValueAtTime(0, now)
+      gain.gain.linearRampToValueAtTime(0.1, now + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4)
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.start(now)
+      osc.stop(now + 0.42)
+    } catch {
+      // Web Audio unsupported/blocked — fail silently, sound is a nice-to-have.
+    }
+  }, [])
+
+  // Browsers require a user gesture before audio can play — unlock/create
+  // the AudioContext on the first scroll/touch/click inside the scene.
+  useEffect(() => {
+    const unlock = () => {
+      const Ctx = window.AudioContext || (window as any).webkitAudioContext
+      if (!Ctx) return
+      const ctx = audioCtxRef.current ?? new Ctx()
+      audioCtxRef.current = ctx
+      if (ctx.state === 'suspended') ctx.resume()
+    }
+    window.addEventListener('wheel', unlock, { once: true, passive: true })
+    window.addEventListener('touchstart', unlock, { once: true, passive: true })
+    window.addEventListener('pointerdown', unlock, { once: true })
+    return () => {
+      window.removeEventListener('wheel', unlock)
+      window.removeEventListener('touchstart', unlock)
+      window.removeEventListener('pointerdown', unlock)
+    }
+  }, [])
+
+  const dialogueTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Let the character's zoom-in punch play for a beat before the caption
+  // text swaps in, so the scale change reads as leading the text change.
+  const handleDialogueChange = useCallback((next: Dialogue) => {
+    if (dialogueTimeoutRef.current) clearTimeout(dialogueTimeoutRef.current)
+    dialogueTimeoutRef.current = setTimeout(() => {
+      setDialogue(next)
+      if (next && next.text) playChime()
+    }, DIALOGUE_DELAY_MS)
+  }, [playChime])
+
+  useEffect(() => {
+    return () => {
+      if (dialogueTimeoutRef.current) clearTimeout(dialogueTimeoutRef.current)
+    }
   }, [])
 
   // Drive scene progress from real window scroll over the tall wrapper (0→1),
@@ -55,6 +140,7 @@ function SceneWithAnimations() {
       title: 'Welcome',
       text: 'Welcome to Garima Vidya Vihar. Scroll through this academic walkthrough to explore our school, values, mission, and vision.',
     })
+    playChime()
     setRobotAnim('wave')
     setBoyAnim('idle')
 
@@ -73,7 +159,7 @@ function SceneWithAnimations() {
       clearTimeout(toBoyWave)
       clearTimeout(toIdle)
     }
-  }, [modelsReady])
+  }, [modelsReady, playChime])
 
   useEffect(() => {
     if (!openingComplete) return
@@ -89,19 +175,18 @@ function SceneWithAnimations() {
 
   return (
     <div ref={sceneWrapper} className="relative w-full" style={{ height: '300vh' }}>
-      <section className="sticky top-0 h-[100svh] w-full overflow-hidden bg-[#0a1233]">
+      <section className="sticky top-0 h-[100svh] w-full overflow-hidden bg-transparent">
         <Canvas
           camera={{ position: [0, 1.8, 10], fov: 45 }}
-          gl={{ antialias: true, powerPreference: 'high-performance' }}
+          gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         >
-          <color attach="background" args={['#0a1233']} />
           <ambientLight intensity={0.7} />
           <directionalLight position={[5, 8, 4]} intensity={1.0} />
           <pointLight position={[-3, 2, 2]} intensity={0.4} color="#00d4ff" />
 
           <ScrollDriver
             openingComplete={openingComplete}
-            onDialogueChange={setDialogue}
+            onDialogueChange={handleDialogueChange}
             onAnimationChange={handleAnimationChange}
             robotGroup={robotGroup}
             boyGroup={boyGroup}
@@ -130,6 +215,14 @@ function SceneWithAnimations() {
         {showHint && (
           <ScrollCue />
         )}
+
+        <button
+          onClick={() => setMuted((m) => !m)}
+          className="absolute right-4 top-4 z-10 rounded-full border border-white/15 bg-[#07103a]/82 p-2.5 text-white/80 shadow-lg backdrop-blur-md transition-colors hover:text-white"
+          aria-label={muted ? 'Unmute narration sound' : 'Mute narration sound'}
+        >
+          {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+        </button>
       </section>
 
       <style jsx global>{`
@@ -194,6 +287,9 @@ function CharacterStage({
         8,
         delta,
       )
+      const robotTargetScale = robotAnim === 'talk' || robotAnim === 'wave' ? ACTIVE_SCALE : 1
+      const robotScale = THREE.MathUtils.damp(robotGroup.current.scale.x, robotTargetScale, 4, delta)
+      robotGroup.current.scale.setScalar(robotScale)
     }
     if (boyGroup.current) {
       boyGroup.current.rotation.y = THREE.MathUtils.damp(
@@ -202,6 +298,9 @@ function CharacterStage({
         8,
         delta,
       )
+      const boyTargetScale = boyAnim === 'wave' || boyAnim === 'clap' ? ACTIVE_SCALE : 1
+      const boyScale = THREE.MathUtils.damp(boyGroup.current.scale.x, boyTargetScale, 4, delta)
+      boyGroup.current.scale.setScalar(boyScale)
     }
   })
 
@@ -288,11 +387,11 @@ function ScrollDriver({
 
     if (robotGroup.current) {
       robotGroup.current.position.x = -sep
-      robotGroup.current.position.y = Math.sin(t * 1.2) * 0.04
+      robotGroup.current.position.y = ROBOT_Y_OFFSET + Math.sin(t * 1.2) * 0.04
     }
     if (boyGroup.current) {
       boyGroup.current.position.x = sep
-      boyGroup.current.position.y = Math.sin(t * 0.9 + 1) * 0.03
+      boyGroup.current.position.y = BOY_Y_OFFSET + Math.sin(t * 0.9 + 1) * 0.03
     }
 
     if (!openingComplete) {

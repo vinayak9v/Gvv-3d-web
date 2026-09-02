@@ -16,6 +16,8 @@ import {
   UserSquare2,
   LogOut,
   ExternalLink,
+  Search,
+  Image as ImageIcon,
 } from "lucide-react";
 // Ensure these paths match your folder structure exactly!
 import Enquiries from "./com/Enquiries";
@@ -27,6 +29,8 @@ import Curriculum from "./com/Curriculum";
 import Calendar from "./com/Calendar";
 import BookList from "./com/BookList";
 import Forms from "./com/Forms";
+import SEO from "./com/SEO";
+import SiteImages from "./com/SiteImages";
 
 // --- Mock Data for Staff and Members ---
 const mockStaff = [
@@ -71,6 +75,13 @@ const NAV_GROUPS = [
       { key: "members", label: "Members", icon: UserSquare2 },
     ],
   },
+  {
+    label: "Marketing",
+    items: [
+      { key: "seo", label: "SEO", icon: Search },
+      { key: "site-images", label: "Site Images", icon: ImageIcon },
+    ],
+  },
 ];
 
 const TAB_TITLES = {
@@ -85,6 +96,8 @@ const TAB_TITLES = {
   forms: "Downloadable Forms",
   staff: "Staff Directory",
   members: "Members",
+  seo: "SEO",
+  "site-images": "Site Images",
 };
 
 export default function AdminDashboard() {
@@ -122,6 +135,10 @@ export default function AdminDashboard() {
         return <BookList />;
       case "forms":
         return <Forms />;
+      case "seo":
+        return <SEO />;
+      case "site-images":
+        return <SiteImages />;
       case "staff":
         return <DataTable title="Staff Directory" columns={["ID", "Name", "Role", "Department"]} data={mockStaff} />;
       case "members":
@@ -247,7 +264,7 @@ function MenuButton({ label, icon: Icon, isActive, onClick }) {
 }
 
 // 2. Generic Data Table Component
-export function DataTable({ title, columns, data }) {
+function DataTable({ title, columns, data }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
 

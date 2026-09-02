@@ -1,6 +1,9 @@
 import Image from "next/image";
+import { getSiteImageUrl } from "@/lib/siteImages";
 
-export default function Hero() {
+export default async function Hero() {
+  const heroImage = await getSiteImageUrl("process_hero");
+
   return (
     <>
       {/* Inline styles for custom animations */}
@@ -38,7 +41,7 @@ export default function Hero() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#020B3D] via-[#020B3D]/90 to-transparent lg:hidden z-10" />
           
           <Image
-            src="/scc.webp"
+            src={heroImage}
             alt="Students at Garima Vidhya Vihar"
             fill
             priority

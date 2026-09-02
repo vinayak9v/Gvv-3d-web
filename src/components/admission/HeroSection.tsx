@@ -73,7 +73,7 @@ export default function HeroSection() {
             Enquire Now
           </a>
           <a
-            href="#"
+            href="/about/resources"
             className="hero-cta bg-gradient-to-b from-[#fae27c] to-[#d6ad44] text-black font-bold px-8 py-3 rounded-full hover:shadow-[0_0_30px_rgba(238,209,101,0.55)] transition-all duration-300"
           >
             Download Brochure

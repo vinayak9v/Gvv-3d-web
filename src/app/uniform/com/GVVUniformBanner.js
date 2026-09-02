@@ -1,6 +1,8 @@
 import Image from "next/image";
+import { getSiteImageUrl } from "@/lib/siteImages";
 
-export default function UniformPage() {
+export default async function UniformPage() {
+  const heroImage = await getSiteImageUrl("uniform_hero");
   const features = [
     {
       icon: "🛡️",
@@ -94,7 +96,7 @@ export default function UniformPage() {
             <div className="relative z-20 w-[780px] h-[780px] rounded-full overflow-hidden">
 
               <Image
-                src="/ghj.webp"
+                src={heroImage}
                 alt="GVV Uniform"
                 fill
                 priority

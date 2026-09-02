@@ -1,7 +1,10 @@
 import React from 'react';
 import Image from 'next/image';
+import { getSiteImageUrl } from '@/lib/siteImages';
 
-export default function Hero() {
+export default async function Hero() {
+  const heroImage = await getSiteImageUrl('fees_hero');
+
   return (
     <>
       <style>{`
@@ -28,7 +31,7 @@ export default function Hero() {
             {/* Mobile Dark Overlay */}
             <div className="absolute inset-0 bg-gradient-to-r from-[#020B3D] via-[#020B3D]/95 to-transparent lg:hidden z-10" />
             <Image
-              src="/io-copy.webp" // Replace with your actual student/school background image
+              src={heroImage}
               alt="Student at Garima Vidhya Vihar"
               fill
               priority

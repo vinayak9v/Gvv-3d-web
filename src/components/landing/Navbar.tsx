@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, Menu, X } from 'lucide-react';
+import { ChevronDown, Menu, Phone, X } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
 
@@ -169,7 +169,9 @@ export default function Navbar() {
           className="navbar-cta bg-[#EED165] border border-[#C79F32] text-black px-5 py-2 rounded-full text-sm font-medium flex items-center gap-3 hover:bg-[#E3C556] transition-colors shadow-sm"
         >
           Contact Us
-          <div className="w-3.5 h-3.5 bg-[#005AA3]"></div>
+          <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[#005AA3]">
+            <Phone size={12} className="text-white" fill="currentColor" />
+          </div>
         </Link>
       </div>
 
@@ -257,7 +259,9 @@ export default function Navbar() {
               className="w-full bg-[#EED165] border border-[#C79F32] text-black px-5 py-3 rounded-full text-sm font-bold flex items-center justify-center gap-3 hover:bg-[#E3C556] transition-colors shadow-sm"
             >
               Contact Us
-              <div className="w-3.5 h-3.5 bg-[#005AA3]"></div>
+              <div className="flex items-center justify-center w-6 h-6 rounded-full bg-[#005AA3]">
+                <Phone size={12} className="text-white" fill="currentColor" />
+              </div>
             </Link>
           </div>
         </div>
