@@ -82,10 +82,6 @@ CREATE TABLE IF NOT EXISTS `download_forms` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Per-page SEO overrides, edited from the admin panel's SEO section.
--- `route` is the site path (e.g. "/", "/about", "/about/introduction").
--- A missing row (or a NULL/empty column) falls back to the page's built-in
--- default title/description — see src/lib/seoPages.ts.
 -- Admin-uploaded replacements for hardcoded hero images on public pages.
 -- `image_key` identifies the slot (e.g. "uniform_hero") — see
 -- src/lib/siteImageSlots.ts. A missing row falls back to the page's
@@ -99,6 +95,10 @@ CREATE TABLE IF NOT EXISTS `site_images` (
   UNIQUE KEY `site_images_key_unique` (`image_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Per-page SEO overrides, edited from the admin panel's SEO section.
+-- `route` is the site path (e.g. "/", "/about", "/about/introduction").
+-- A missing row (or a NULL/empty column) falls back to the page's built-in
+-- default title/description — see src/lib/seoPages.ts.
 CREATE TABLE IF NOT EXISTS `page_seo` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `route` VARCHAR(191) NOT NULL,
