@@ -123,9 +123,12 @@ export function readSessionCookieFromHeader(cookieHeader: string | null | undefi
 
 // For use inside API route handlers (POST/PUT/DELETE) as a second layer of
 // defense in addition to proxy.ts's page-level redirect.
-export async function isAuthorizedAdminRequest(req: Request): Promise<boolean> {
-  const token = readSessionCookieFromHeader(req.headers.get("cookie"));
-  return isValidSessionToken(token);
+//
+// TEMPORARILY DISABLED (per request, matches proxy.ts): always authorized, so
+// admin actions work without logging in. To re-enable, restore the
+// token/isValidSessionToken check below.
+export async function isAuthorizedAdminRequest(_req: Request): Promise<boolean> {
+  return true;
 }
 
 export const ADMIN_SESSION_COOKIE = COOKIE_NAME;
