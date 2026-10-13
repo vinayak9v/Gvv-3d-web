@@ -23,7 +23,7 @@ const SchoolModelBanner = dynamic(() => import('./SchoolModelBanner'), {
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
-const HERO_TITLE = 'SHAPING THINKERS, BUILDING INNOVATERS';
+const HERO_TITLE = 'SHAPINGg THINKERS, BUILDING INNOVATERS';
 
 export default function Hero() {
   const ref = useRef<HTMLElement>(null);
