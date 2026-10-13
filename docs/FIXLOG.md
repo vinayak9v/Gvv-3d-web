@@ -4,6 +4,25 @@ A running record of bugs/errors, their root cause, and the fix. Newest first.
 
 ---
 
+## 2026-10-13 — Mobile 3D reload/slow load + client change list (menus, home, footer)
+
+- **Mobile reload / load time:** `school.glb` has one mesh with ~641k tris
+  (~34MB GPU) plus 20× 1024² textures (~110MB VRAM) — enough to OOM-kill a
+  phone tab, which the browser then reloads. Added `public/models/school-mobile.glb`
+  (gltf-transform `simplify --ratio 0.25 --error 0.002`, `resize 512`, `draco`):
+  9.8→5.3MB, that mesh 34→11.7MB GPU. `SchoolModelBanner` loads it below 768px.
+- Model: bigger on desktop (fit 9.2, phones 7.6 so edges don't clip), one-time
+  grow/rise/swing-in intro after load, "Drag To View" centred under the model.
+- Header/footer links now come from `src/lib/siteNav.ts`. New menu pages without
+  content yet render `InfoPage` from `src/lib/infoPages.ts`
+  (`/academic/[slug]`, `/events/[slug]`, `/about/educators`, `/admission/prospectus`).
+- Home: removed Visions; "Innovation" → "Life At Garima" (4 photos,
+  Admin → Site Images `home_life_1..4`); Knowledge Partners (`home_partner_1..8`,
+  hidden until a logo is uploaded); Gallery (latest 8 from `gallery` table);
+  Journey 1988/2007/2024/2025. Removed `/about/strength` site-wide.
+
+---
+
 ## 2026-06-26 — Optimization batch 3 + hero sky discovery
 
 - **#2 school.glb textures 2048→1024:** 11.5→9MB (identical at hero scale).

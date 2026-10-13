@@ -1,6 +1,13 @@
 "use client";
 import React, { useState } from 'react';
 
+const CLASS_OPTIONS = [
+  'Nursery', 'LKG', 'UKG',
+  'Class I', 'Class II', 'Class III', 'Class IV', 'Class V', 'Class VI',
+  'Class VII', 'Class VIII', 'Class IX',
+  'Class XI Science', 'Class XI Commerce', 'Class XI Humanities',
+];
+
 export default function AdmissionForm() {
   // Initialize state for all form fields
   const [studentName, setStudentName] = useState("");
@@ -154,10 +161,9 @@ export default function AdmissionForm() {
                     required
                   >
                     <option value="" disabled className="text-slate-400">Select class</option>
-                    <option value="nursery">Nursery</option>
-                    <option value="kg">KG</option>
-                    <option value="1">Class 1</option>
-                    <option value="2">Class 2</option>
+                    {CLASS_OPTIONS.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
                   </select>
                   <div className="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-slate-400">
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

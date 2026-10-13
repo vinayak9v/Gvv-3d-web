@@ -29,7 +29,7 @@ export default function FeeStructureSection() {
     <section ref={ref} className="py-20">
       <div className="max-w-7xl mx-auto px-6">
         <h2 className="text-white text-3xl md:text-4xl font-bold text-center">
-          Fee Structure 2026-27
+          Fee Structure 2027-28
         </h2>
 
         <div className="fee-card mt-12 bg-[#0a1445]/80 backdrop-blur-sm border border-blue-500/40 rounded-2xl p-8 md:p-12 max-w-5xl mx-auto">

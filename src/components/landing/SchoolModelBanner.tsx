@@ -8,6 +8,11 @@ import type { MutableRefObject } from 'react';
 import * as THREE from 'three';
 
 const MODEL_URL = '/models/school.glb';
+// Phones get a lighter build of the same model (geometry simplified, textures
+// 512px): ~5MB instead of ~10MB and roughly a third of the GPU memory, so it
+// loads faster and doesn't crash/reload low-memory mobile browsers.
+const MOBILE_MODEL_URL = '/models/school-mobile.glb';
+const DESKTOP_QUERY = '(min-width: 768px)';
 
 // Default resting pose (tilted: school on top, flames streaming out the underside).
 const DEFAULT_ROT_X = -0.5;
@@ -17,6 +22,12 @@ const DEFAULT_ROT_Y = 0.25;
 // left FREE so the island can be spun all the way around horizontally.
 const ROT_X_MIN = -0.85;
 const ROT_X_MAX = -0.15;
+
+// Entrance animation once the GLB has loaded: the island grows, rises up and
+// swings round into its resting pose. Plays once per page load (not again when
+// the canvas remounts after scrolling back to the hero).
+const INTRO_DURATION = 1.8; // seconds
+let introPlayed = false;
 
 // Material name used by thrust cubes & cylinders in the GLB
 const THRUST_MATERIAL_NAME = 'PaletteMaterial010';
@@ -110,14 +121,20 @@ type RotationTarget = {
 };
 
 function SchoolModel({
+  url,
+  fit,
   rotationTarget,
 }: {
+  url: string;
+  fit: number;
   rotationTarget: MutableRefObject<RotationTarget>;
 }) {
   const groupRef = useRef<THREE.Group>(null);
+  const introRef = useRef<THREE.Group>(null);
+  const introProgress = useRef(introPlayed ? 1 : 0);
   // Self-hosted Draco decoder ('/draco/') — NOT the gstatic CDN (which hangs on
   // some ISPs and blocks the whole scene from rendering/scrolling).
-  const { scene } = useGLTF(MODEL_URL, '/draco/');
+  const { scene } = useGLTF(url, '/draco/');
   const thrustMaterialsRef = useRef<THREE.ShaderMaterial[]>([]);
 
   const model = useMemo(() => {
@@ -207,9 +224,8 @@ function SchoolModel({
     // horizontal yaw. Fit to the HORIZONTAL span (x–z diagonal) rather than the
     // full 3D diagonal: that keeps the model as large as possible (viewable up
     // close) while still guaranteeing a full horizontal spin stays in-frame.
-    const MODEL_FIT = 7.6;
     const horizSpan = Math.hypot(size.x, size.z) || 1;
-    const scale = MODEL_FIT / horizSpan;
+    const scale = fit / horizSpan;
 
     cloned.position.set(-center.x, -center.y, -center.z);
 
@@ -217,10 +233,29 @@ function SchoolModel({
       object: cloned,
       scale,
     };
-  }, [scene]);
+  }, [scene, fit]);
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
+
+    // Intro: ease-out from small / low / turned-away to the resting pose.
+    // Delta is capped so a long first frame (shader compile) doesn't skip it.
+    if (introRef.current && introProgress.current < 1) {
+      introProgress.current = Math.min(
+        1,
+        introProgress.current + Math.min(delta, 1 / 30) / INTRO_DURATION,
+      );
+      if (introProgress.current >= 1) introPlayed = true;
+    }
+    if (introRef.current) {
+      const t = introProgress.current;
+      const e = 1 - Math.pow(1 - t, 3); // easeOutCubic
+      const rest = 1 - e;
+      introRef.current.scale.setScalar(0.45 + 0.55 * e);
+      introRef.current.position.y = -2.2 * rest;
+      introRef.current.rotation.y = -Math.PI * 0.6 * rest;
+    }
+
     groupRef.current.rotation.x = THREE.MathUtils.damp(
       groupRef.current.rotation.x,
       rotationTarget.current.x,
@@ -239,10 +274,12 @@ function SchoolModel({
   });
 
   return (
-    <group ref={groupRef} scale={model.scale} position={[0, -1.4, 0]}>
-      <Center>
-        <primitive object={model.object} />
-      </Center>
+    <group ref={introRef} scale={introPlayed ? 1 : 0.45}>
+      <group ref={groupRef} scale={model.scale} position={[0, -1.4, 0]}>
+        <Center>
+          <primitive object={model.object} />
+        </Center>
+      </group>
     </group>
   );
 }
@@ -270,11 +307,11 @@ export default function SchoolModelBanner() {
   // render — no hydration flash.)
   const [isDesktop, setIsDesktop] = useState<boolean>(() =>
     typeof window !== 'undefined'
-      ? window.matchMedia('(min-width: 768px)').matches
+      ? window.matchMedia(DESKTOP_QUERY).matches
       : true,
   );
   useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
+    const mq = window.matchMedia(DESKTOP_QUERY);
     const onChange = () => setIsDesktop(mq.matches);
     mq.addEventListener('change', onChange);
     return () => mq.removeEventListener('change', onChange);
@@ -394,7 +431,13 @@ export default function SchoolModelBanner() {
             />
 
             <Suspense fallback={<ModelLoader />}>
-              <SchoolModel rotationTarget={rotationTarget} />
+              <SchoolModel
+                url={isDesktop ? MODEL_URL : MOBILE_MODEL_URL}
+                // Narrow phone screens can't take the larger desktop size
+                // without the island's edges clipping.
+                fit={isDesktop ? 9.2 : 7.6}
+                rotationTarget={rotationTarget}
+              />
             </Suspense>
 
             {/* Own Suspense (fallback: nothing) so the HDR loads WITHOUT blocking
@@ -407,9 +450,8 @@ export default function SchoolModelBanner() {
         </div>
       </div>
 
-      {/* Drag controls overlaid in the lower-right of the hero so they're visible
-          without scrolling, on both phone and desktop. */}
-      <div className="absolute top-[62%] right-[7%] sm:top-[58%] sm:right-[12%] z-20 flex flex-col items-center gap-1">
+      {/* Drag controls centred under the model. */}
+      <div className="absolute left-1/2 top-[64%] z-20 -translate-x-1/2 flex select-none flex-col items-center gap-1">
         <button
           type="button"
           className="drag-handle w-12 h-12 bg-[#e2e8f0] rounded-full flex items-center justify-center cursor-ew-resize shadow-md touch-none"
@@ -434,8 +476,10 @@ export default function SchoolModelBanner() {
   );
 }
 
-// Every device now mounts the Canvas and renders the real model, so prefetch the
-// GLB everywhere to shorten time-to-first-paint of the hero.
+// Prefetch the model this device will render to shorten time-to-first-paint.
 if (typeof window !== 'undefined') {
-  useGLTF.preload(MODEL_URL, '/draco/');
+  useGLTF.preload(
+    window.matchMedia(DESKTOP_QUERY).matches ? MODEL_URL : MOBILE_MODEL_URL,
+    '/draco/',
+  );
 }

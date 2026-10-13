@@ -7,11 +7,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const journeyData = [
-  { id: 1, year: '2024', desc: 'Guinness World Record event achieved.' },
-  { id: 2, year: '2007', desc: 'Garima Vidya Vihar CBSE School launched.' },
-  { id: 3, year: '2009', desc: 'Little Garimayans Preschool started.' },
-  { id: 4, year: '1988', desc: 'Shree Garima Vidya Mandir founded.' },
-  { id: 5, year: '2025', desc: 'Humanoid robot learning innovation introduced.' },
+  { id: 1, year: '1988', desc: 'Garima Group started with its first school.' },
+  { id: 2, year: '2007', desc: 'Garima Vidya Vihar launched.' },
+  { id: 3, year: '2024', desc: 'Became a Guinness World Record holder school.' },
+  { id: 4, year: '2025', desc: 'Became the first school to launch humanoid robots.' },
 ];
 
 function Madok() {
@@ -96,7 +95,7 @@ function Madok() {
 
       <div
         ref={gridRef}
-        className="journey-grid w-full max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-12"
+        className="journey-grid w-full max-w-7xl grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12"
       >
         {journeyData.map((item, i) => (
           <div

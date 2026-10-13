@@ -1,38 +1,6 @@
 import Link from 'next/link';
 import { Mail, MapPin, Phone } from 'lucide-react';
-
-const admissionsLinks = [
-  { label: 'Admission Process 2026-27', href: '/process' },
-  { label: 'Fees Structure 2026-27', href: '/fees' },
-  { label: 'GVV Uniform', href: '/uniform' },
-];
-
-const curriculumLinks = [
-  { label: 'Annual Curriculum Planner-2025-26', href: '/academic/planner' },
-  { label: 'Academic Calendar – 2025-26', href: '/academic/calendar' },
-  { label: 'Book List– 2026-27', href: '/academic/books' },
-];
-
-const aboutLinks = [
-  { label: 'Introduction', href: '/about/introduction' },
-  { label: 'Affiliation Code', href: '/about/affiliation' },
-  { label: 'Quality of Education', href: '/about/introduction' },
-  { label: 'Establishment', href: '/about/establishment-legacy' },
-  { label: 'Mission Statement', href: '/about/introduction' },
-  { label: 'Vision Statement', href: '/about/introduction' },
-  { label: 'Our Committee', href: '/about/committees' },
-  { label: 'Management', href: '/about/management' },
-  { label: 'Student Strength', href: '/about/strength' },
-  { label: 'Staff', href: '/about/management' },
-  { label: 'Annual Report', href: '/about/report' },
-];
-
-const discoverLinks = [
-  { label: 'Mandatory Disclosures', href: '/mandatory-disclosures' },
-  { label: 'Transfer Certificate', href: '/tc-download' },
-  { label: 'Articles / Blogs', href: '/articles' },
-  { label: 'Gallery', href: '/about/gallery-media' },
-];
+import { footerLinks } from '@/lib/siteNav';
 
 const socialLinks = [
   {
@@ -73,31 +41,14 @@ const socialLinks = [
   },
 ];
 
-function FooterLinkList({ title, links }: { title: string; links: { label: string; href: string }[] }) {
-  return (
-    <div className="flex flex-col">
-      <h4 className="text-white text-lg font-semibold mb-6">{title}</h4>
-      <ul className="flex flex-col gap-3">
-        {links.map((item) => (
-          <li key={item.label}>
-            <Link href={item.href} className="text-gray-300 hover:text-white transition-colors text-sm leading-snug">
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 export default function Footer() {
   return (
     <footer className="w-full flex flex-col font-sans mt-auto">
 
       <div className="w-full bg-[#020b3a] py-16 px-6 md:px-12 flex justify-center">
-        <div className="max-w-7xl w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+        <div className="max-w-7xl w-full grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-16">
 
-          <div className="flex flex-col gap-6 sm:col-span-2 lg:col-span-1">
+          <div className="flex flex-col gap-6">
             <div className="flex items-center gap-4">
               <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center p-1 shrink-0 overflow-hidden">
                 <img
@@ -134,10 +85,18 @@ export default function Footer() {
             </div>
           </div>
 
-          <FooterLinkList title="Admissions" links={admissionsLinks} />
-          <FooterLinkList title="Curriculum" links={curriculumLinks} />
-          <FooterLinkList title="About Us" links={aboutLinks} />
-          <FooterLinkList title="Discover More" links={discoverLinks} />
+          <div className="flex flex-col lg:col-span-2">
+            <h4 className="text-white text-lg font-semibold mb-6">About Us</h4>
+            <ul className="sm:columns-2 gap-x-10">
+              {footerLinks.map((item) => (
+                <li key={item.label} className="mb-3 break-inside-avoid">
+                  <Link href={item.href} className="text-gray-300 hover:text-white transition-colors text-sm leading-snug">
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
         </div>
       </div>

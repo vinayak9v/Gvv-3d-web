@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ChevronDown, Menu, Phone, X } from 'lucide-react';
 import { useGSAP } from '@gsap/react';
 import gsap from 'gsap';
+import { aboutLinks, academicGroups, admissionLinks, eventLinks, type NavLink } from '@/lib/siteNav';
 
 gsap.registerPlugin(useGSAP);
 
@@ -14,7 +15,6 @@ export default function Navbar() {
 
   useGSAP(
     () => {
-      console.log('[Navbar] useGSAP fired, ref:', ref.current);
       const tl = gsap.timeline();
       tl.from(ref.current, {
         y: -80,
@@ -61,40 +61,6 @@ export default function Navbar() {
     setExpandedMobileMenu(null);
   };
 
-  // Dropdown data
-  const admissionItems = [
-    { label: "ADMISSION PROCESS 2026-27", href: "/process" },
-    { label: "FEES STRUCTURE 2026-27", href: "/fees" },
-    { label: "GVV UNIFORM", href: "/uniform" },
-  ];
-
-  const curriculumItems = [
-    { label: "Annual Curriculum Planner-2025-26", href: "/academic/planner" },
-    { label: "Academic Calendar – 2025-26", href: "/academic/calendar" },
-    { label: "Book List– 2026-27", href: "/academic/books" },
-  ];
-
-  const aboutItems = [
-    { label: "Introduction", href: "/about/introduction" },
-    { label: "AFFILIATION CODE", href: "/about/affiliation" },
-    { label: "QUALITY OF EDUCATION", href: "/about/introduction" },
-    { label: "WHAT WE OFFER", href: "/about/what-we-offer" },
-    { label: "TRANSPORT", href: "/about/transport" },
-    { label: "GALLERY & MEDIA", href: "/about/gallery-media" },
-    { label: "SCHOOL WINGS", href: "/about/school-wings" },
-    { label: "RESOURCES", href: "/about/resources" },
-    { label: "SAFETY & SECURITY", href: "/about/safety-security" },
-    { label: "ACHIEVEMENTS", href: "/about/achievements" },
-    { label: "ESTABLISHMENT", href: "/about/establishment-legacy" },
-    { label: "MISSION STATEMENT", href: "/about/introduction" },
-    { label: "VISION STATEMENT", href: "/about/introduction" },
-    { label: "Our committee", href: "/about/committees" },
-    { label: "Management", href: "/about/management" },
-    { label: "Student strength", href: "/about/strength" },
-    { label: "Staff", href: "/about/management" },
-    { label: "Annual Report", href: "/about/report" },
-  ];
-
   return (
     <nav ref={ref} className="relative z-50 flex items-center justify-between px-6 md:px-8 py-4 w-[90%] max-w-6xl mx-auto mt-6 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 shadow-lg">
 
@@ -117,50 +83,30 @@ export default function Navbar() {
       </Link>
 
       {/* Desktop Navigation */}
-      <div className="hidden md:flex items-center gap-8 text-white text-sm font-medium">
-        
-        {/* Admission Dropdown */}
-        <div className="navbar-link relative group">
-          <Link href="/admission" className="flex items-center gap-1 hover:text-yellow-400 transition-colors py-4">
-            Admission <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
-          </Link>
-          <div className="absolute top-[100%] left-0 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 bg-[#08123b]/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl flex flex-col p-2">
-            {admissionItems.map((item, idx) => (
-              <Link key={idx} href={item.href} className="px-3 py-2 text-sm text-white/90 hover:bg-white/10 hover:text-yellow-400 rounded-lg transition-colors">
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </div>
+      <div className="hidden md:flex items-center gap-6 lg:gap-8 text-white text-sm font-medium">
+        <DesktopMenu label="Admissions" href="/admission" links={admissionLinks} />
 
-        {/* Curriculum Dropdown */}
+        {/* Academics: grouped mega menu */}
         <div className="navbar-link relative group">
           <Link href="/academic" className="flex items-center gap-1 hover:text-yellow-400 transition-colors py-4">
-            Curriculum <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
+            Academics <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
           </Link>
-          <div className="absolute top-[100%] left-0 w-72 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 bg-[#08123b]/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl flex flex-col p-2">
-            {curriculumItems.map((item, idx) => (
-              <Link key={idx} href={item.href} className="px-3 py-2 text-sm text-white/90 hover:bg-white/10 hover:text-yellow-400 rounded-lg transition-colors">
-                {item.label}
-              </Link>
+          <div className="absolute top-[100%] left-1/2 -translate-x-1/2 w-[640px] opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 bg-[#08123b]/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl grid grid-cols-4 gap-2 p-4 text-left">
+            {academicGroups.map((group) => (
+              <div key={group.title} className="flex flex-col">
+                <p className="px-3 pb-2 text-xs font-bold uppercase tracking-wider text-[#EED165]">{group.title}</p>
+                {group.links.map((item) => (
+                  <Link key={item.label} href={item.href} className="px-3 py-2 text-sm text-white/90 hover:bg-white/10 hover:text-yellow-400 rounded-lg transition-colors">
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             ))}
           </div>
         </div>
 
-        {/* About Us Dropdown */}
-        <div className="navbar-link relative group">
-          <Link href="/about" className="flex items-center gap-1 hover:text-yellow-400 transition-colors py-4">
-            About Us <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
-          </Link>
-          <div className="absolute top-[100%] left-0 w-56 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 bg-[#08123b]/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl flex flex-col p-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
-            {aboutItems.map((item, idx) => (
-              <Link key={idx} href={item.href} className="px-3 py-2 text-sm text-white/90 hover:bg-white/10 hover:text-yellow-400 rounded-lg transition-colors">
-                {item.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-
+        <DesktopMenu label="Events and Activities" href="/events/school-events" links={eventLinks} />
+        <DesktopMenu label="About Us" href="/about" links={aboutLinks} />
       </div>
 
       <div className="hidden md:block">
@@ -186,7 +132,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
-        <div className="absolute top-[110%] left-0 w-full bg-[#08123b]/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl flex flex-col p-4 gap-2 md:hidden animate-in fade-in slide-in-from-top-4 duration-200 overflow-y-auto max-h-[80vh]">
+        <div className="absolute top-[110%] left-0 w-full text-left bg-[#08123b]/95 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl flex flex-col p-4 gap-2 md:hidden animate-in fade-in slide-in-from-top-4 duration-200 overflow-y-auto max-h-[80vh]">
           <Link
             href="/"
             onClick={closeMobileMenu}
@@ -195,62 +141,38 @@ export default function Navbar() {
             Home
           </Link>
 
-          {/* Mobile Admission */}
-          <div className="flex flex-col bg-white/5 rounded-xl overflow-hidden transition-all">
-            <button 
-              onClick={() => toggleMobileSubmenu('admission')}
-              className="flex items-center justify-between text-white font-medium hover:text-yellow-400 p-3 w-full text-left"
-            >
-              Admission <ChevronDown size={16} className={`transition-transform ${expandedMobileMenu === 'admission' ? 'rotate-180' : ''}`} />
-            </button>
-            {expandedMobileMenu === 'admission' && (
-              <div className="flex flex-col px-4 pb-3 gap-2 border-t border-white/10 pt-2 bg-black/20">
-                {admissionItems.map((item, idx) => (
-                  <Link key={idx} href={item.href} onClick={closeMobileMenu} className="text-sm text-white/80 hover:text-yellow-400 py-1">
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Mobile Curriculum */}
-          <div className="flex flex-col bg-white/5 rounded-xl overflow-hidden transition-all">
-            <button 
-              onClick={() => toggleMobileSubmenu('curriculum')}
-              className="flex items-center justify-between text-white font-medium hover:text-yellow-400 p-3 w-full text-left"
-            >
-              Curriculum <ChevronDown size={16} className={`transition-transform ${expandedMobileMenu === 'curriculum' ? 'rotate-180' : ''}`} />
-            </button>
-            {expandedMobileMenu === 'curriculum' && (
-              <div className="flex flex-col px-4 pb-3 gap-2 border-t border-white/10 pt-2 bg-black/20">
-                {curriculumItems.map((item, idx) => (
-                  <Link key={idx} href={item.href} onClick={closeMobileMenu} className="text-sm text-white/80 hover:text-yellow-400 py-1">
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Mobile About Us */}
-          <div className="flex flex-col bg-white/5 rounded-xl overflow-hidden transition-all">
-            <button 
-              onClick={() => toggleMobileSubmenu('about')}
-              className="flex items-center justify-between text-white font-medium hover:text-yellow-400 p-3 w-full text-left"
-            >
-              About Us <ChevronDown size={16} className={`transition-transform ${expandedMobileMenu === 'about' ? 'rotate-180' : ''}`} />
-            </button>
-            {expandedMobileMenu === 'about' && (
-              <div className="flex flex-col px-4 pb-3 gap-2 border-t border-white/10 pt-2 bg-black/20">
-                {aboutItems.map((item, idx) => (
-                  <Link key={idx} href={item.href} onClick={closeMobileMenu} className="text-sm text-white/80 hover:text-yellow-400 py-1">
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+          <MobileMenu
+            id="admission"
+            label="Admissions"
+            groups={[{ title: '', links: admissionLinks }]}
+            expanded={expandedMobileMenu}
+            onToggle={toggleMobileSubmenu}
+            onNavigate={closeMobileMenu}
+          />
+          <MobileMenu
+            id="academics"
+            label="Academics"
+            groups={academicGroups}
+            expanded={expandedMobileMenu}
+            onToggle={toggleMobileSubmenu}
+            onNavigate={closeMobileMenu}
+          />
+          <MobileMenu
+            id="events"
+            label="Events and Activities"
+            groups={[{ title: '', links: eventLinks }]}
+            expanded={expandedMobileMenu}
+            onToggle={toggleMobileSubmenu}
+            onNavigate={closeMobileMenu}
+          />
+          <MobileMenu
+            id="about"
+            label="About Us"
+            groups={[{ title: '', links: aboutLinks }]}
+            expanded={expandedMobileMenu}
+            onToggle={toggleMobileSubmenu}
+            onNavigate={closeMobileMenu}
+          />
 
           <div className="mt-2 pt-4 border-t border-white/10 flex justify-center">
             <Link
@@ -268,5 +190,66 @@ export default function Navbar() {
       )}
 
     </nav>
+  );
+}
+
+function DesktopMenu({ label, href, links }: { label: string; href: string; links: NavLink[] }) {
+  return (
+    <div className="navbar-link relative group">
+      <Link href={href} className="flex items-center gap-1 whitespace-nowrap hover:text-yellow-400 transition-colors py-4">
+        {label} <ChevronDown size={14} className="group-hover:rotate-180 transition-transform duration-200" />
+      </Link>
+      <div className="absolute top-[100%] left-0 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 bg-[#08123b]/95 backdrop-blur-xl border border-white/20 rounded-xl shadow-2xl flex flex-col p-2 text-left max-h-[70vh] overflow-y-auto custom-scrollbar">
+        {links.map((item) => (
+          <Link key={item.label} href={item.href} className="px-3 py-2 text-sm text-white/90 hover:bg-white/10 hover:text-yellow-400 rounded-lg transition-colors">
+            {item.label}
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MobileMenu({
+  id,
+  label,
+  groups,
+  expanded,
+  onToggle,
+  onNavigate,
+}: {
+  id: string;
+  label: string;
+  groups: { title: string; links: NavLink[] }[];
+  expanded: string | null;
+  onToggle: (menu: string) => void;
+  onNavigate: () => void;
+}) {
+  const isOpen = expanded === id;
+  return (
+    <div className="flex flex-col bg-white/5 rounded-xl overflow-hidden transition-all">
+      <button
+        onClick={() => onToggle(id)}
+        className="flex items-center justify-between text-white font-medium hover:text-yellow-400 p-3 w-full text-left"
+      >
+        {label} <ChevronDown size={16} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+      {isOpen && (
+        <div className="flex flex-col px-4 pb-3 gap-2 border-t border-white/10 pt-2 bg-black/20">
+          {groups.map((group) => (
+            <div key={group.title || id} className="flex flex-col gap-2">
+              {group.title && (
+                <p className="pt-1 text-xs font-bold uppercase tracking-wider text-[#EED165]">{group.title}</p>
+              )}
+              {group.links.map((item) => (
+                <Link key={item.label} href={item.href} onClick={onNavigate} className="text-sm text-white/80 hover:text-yellow-400 py-1">
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

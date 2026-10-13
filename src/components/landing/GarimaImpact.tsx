@@ -24,33 +24,6 @@ const impactStats: ImpactStat[] = [
   { id: 5, value: 'ADVANCED', label: 'ROBOTICS LABS', icon: '/Robotics.png' },
 ];
 
-const innovations = [
-  {
-    id: 1,
-    title: 'G-VYAS Humanoid Robot',
-    desc: 'Our revolutionary AI-powered classroom assistant transforming interactive learning.',
-    icon: '/Trophy.png',
-  },
-  {
-    id: 2,
-    title: 'Robotics & AI Labs',
-    desc: 'State-of-the-art facilities for hands-on robotics engineering and programming.',
-    icon: '/Trophy.png',
-  },
-  {
-    id: 3,
-    title: 'Garima Innovation Club',
-    desc: 'A dedicated platform empowering student innovation, research, and collaboration.',
-    icon: '/Trophy.png',
-  },
-  {
-    id: 4,
-    title: 'STEM Programs',
-    desc: 'Deeply integrated science, technology, engineering, and mathematics curriculum.',
-    icon: '/Trophy.png',
-  },
-];
-
 function formatNumber(value: number, fmt: ImpactStat['format']) {
   const rounded = Math.round(value);
   if (fmt === 'plus-comma') return rounded.toLocaleString() + '+';
@@ -58,7 +31,7 @@ function formatNumber(value: number, fmt: ImpactStat['format']) {
   return String(rounded);
 }
 
-export default function GarimaImpact() {
+export default function GarimaImpact({ lifePhotos }: { lifePhotos: string[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const impactRef = useRef<HTMLElement>(null);
   const innovationRef = useRef<HTMLElement>(null);
@@ -159,36 +132,15 @@ export default function GarimaImpact() {
         scrollTrigger: innoTrigger,
       });
 
-      gsap.set('.inno-item', { x: -40, opacity: 0 });
-      gsap.to('.inno-item', {
-        x: 0,
+      gsap.set('.life-photo', { y: 40, opacity: 0 });
+      gsap.to('.life-photo', {
+        y: 0,
         opacity: 1,
-        stagger: 0.15,
+        stagger: 0.12,
         duration: 0.7,
         ease: 'power3.out',
         clearProps: 'transform',
         scrollTrigger: innoTrigger,
-      });
-
-      gsap.set('.gvyas-card', { x: 40, scale: 0.95, opacity: 0 });
-      gsap.to('.gvyas-card', {
-        x: 0,
-        scale: 1,
-        opacity: 1,
-        duration: 0.9,
-        ease: 'power3.out',
-        clearProps: 'transform',
-        scrollTrigger: innoTrigger,
-        onComplete: () => {
-          gsap.to('.gvyas-card', {
-            scale: 1.02,
-            duration: 3,
-            ease: 'sine.inOut',
-            repeat: -1,
-            yoyo: true,
-            transformOrigin: 'center center',
-          });
-        },
       });
 
       const floatRotations = [
@@ -330,41 +282,23 @@ export default function GarimaImpact() {
         <img src="/Layer 2 1.png" data-base-rotation="30" className="inno-float absolute bottom-12 right-8 md:right-24 w-16 md:w-24 opacity-80" alt="" style={{ transform: 'rotate(30deg)' }} />
 
         <h2 className="inno-heading relative z-10 text-white text-3xl md:text-4xl font-bold tracking-wide mb-16 text-center">
-          Innovation At Garima
+          Life At Garima
         </h2>
 
-        <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 max-w-6xl w-full">
-
-          <div className="flex flex-col gap-8 justify-center">
-            {innovations.map((item) => (
-              <div key={item.id} className="inno-item flex items-start gap-4">
-                <div className="mt-1 flex-shrink-0 w-10 h-10 rounded-full bg-blue-800 border border-blue-500/30 flex items-center justify-center p-2">
-                  <img src={item.icon} alt="Icon" className="w-full h-full object-contain" />
-                </div>
-                <div>
-                  <h4 className="text-white text-lg font-bold mb-1">
-                    {item.title}
-                  </h4>
-                  <p className="text-blue-100 text-sm leading-relaxed max-w-md">
-                    {item.desc}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-center justify-center">
-            <div className="gvyas-card bg-[#1b26ab]/60 backdrop-blur-md border border-white/10 rounded-[2rem] p-6 w-full max-w-lg shadow-2xl">
-              <div className="w-full h-[250px] bg-white rounded-xl mb-4 overflow-hidden shadow-inner">
-                <img src="/Robot.png" alt="G-VYAS Robot" className="w-full h-full object-cover" />
-              </div>
-              <div className="text-center">
-                <h3 className="text-white text-xl font-bold">Meet G-VYAS</h3>
-                <p className="text-blue-200 text-xs mt-1">MP&apos;S First Humanoid Robot Assistant</p>
-              </div>
-            </div>
-          </div>
-
+        <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-6xl w-full">
+          {lifePhotos.map((src, i) => (
+            <figure
+              key={i}
+              className="life-photo group relative aspect-[4/5] overflow-hidden rounded-2xl border border-white/10 shadow-2xl"
+            >
+              <img
+                src={src}
+                alt={`Life at Garima ${i + 1}`}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              />
+            </figure>
+          ))}
         </div>
 
         <a

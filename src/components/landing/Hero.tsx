@@ -63,16 +63,6 @@ export default function Hero() {
         transformOrigin: 'center center',
       });
 
-      gsap.set('.visions-title', { y: 30, opacity: 0 });
-      gsap.to('.visions-title', {
-        y: 0,
-        opacity: 1,
-        duration: 0.8,
-        ease: 'power3.out',
-        clearProps: 'transform',
-        scrollTrigger: { trigger: '.visions-title', start: 'top 85%' },
-      });
-
       gsap.to('.wave-track', {
         x: '-50%',
         duration: 12,
@@ -102,14 +92,11 @@ export default function Hero() {
         <SchoolModelBanner />
         <Link
           href="/admission"
-          className="hero-btn mt-24 flex items-center gap-3 rounded-full border border-[#C79F32] bg-[#EED165] px-6 py-2.5 text-sm font-medium text-black shadow-sm transition-colors hover:bg-[#E3C556]"
+          className="hero-btn -mt-16 sm:-mt-36 flex items-center gap-3 rounded-full border border-[#C79F32] bg-[#EED165] px-6 py-2.5 text-sm font-medium text-black shadow-sm transition-colors hover:bg-[#E3C556]"
         >
           Admission Open
           <div className="h-3.5 w-3.5 bg-[#005AA3]"></div>
         </Link>
-        <h2 className="visions-title text-white text-3xl sm:text-4xl md:text-[40px] font-extrabold mt-12 tracking-wider drop-shadow-md">
-          OUR VISIONS
-        </h2>
       </div>
 
       <div className="wave-divider relative w-full h-24 mt-12 overflow-hidden pointer-events-none z-10">

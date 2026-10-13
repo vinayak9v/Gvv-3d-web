@@ -105,13 +105,6 @@ export const SEO_PAGES: SeoPageDef[] = [
     defaultDescription: "The different academic wings and stages of schooling at Garima Vidhya Vihar.",
   },
   {
-    route: "/about/strength",
-    label: "About – Student Strength",
-    group: "About",
-    defaultTitle: "Student Strength | Garima Vidhya Vihar",
-    defaultDescription: "Student enrolment and strength details at Garima Vidhya Vihar.",
-  },
-  {
     route: "/about/transport",
     label: "About – Transport",
     group: "About",

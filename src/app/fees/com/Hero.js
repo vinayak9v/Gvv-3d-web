@@ -88,7 +88,7 @@ export default async function Hero() {
                   FEES STRUCTURE
                 </span>
                 <span className="block text-[#E9C84A] text-5xl sm:text-6xl mt-1 drop-shadow-md">
-                  2026-27
+                  2027-28
                 </span>
               </h1>
 
@@ -178,7 +178,7 @@ export default async function Hero() {
         {/* ========================================= */}
         <div className="bg-white w-full py-8 sm:py-10 flex flex-col items-center justify-center relative z-20">
           <h2 className="text-[#020B3D] text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-wide text-center px-4">
-            TUITION FEE CHART FOR SESSION <span className="text-[#020B3D]">2026-27</span>
+            TUITION FEE CHART FOR SESSION <span className="text-[#020B3D]">2027-28</span>
           </h2>
           
           {/* Decorative Diamond Ornament */}
