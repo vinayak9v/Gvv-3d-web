@@ -1,6 +1,13 @@
 import type { NextConfig } from "next";
+import path from "path";
+
+// Pin the project root: a stray package-lock.json in the user home folder made
+// Next infer the wrong workspace root (build/dev warning, wrong file tracing).
+const projectRoot = path.resolve(__dirname);
 
 const nextConfig: NextConfig = {
+  turbopack: { root: projectRoot },
+  outputFileTracingRoot: projectRoot,
   // Origins (other than localhost) allowed to load the dev server's internal
   // client/HMR runtime. If the origin you open the dev server from is NOT listed,
   // Next blocks its /_next dev resources, so the page renders server-side but
