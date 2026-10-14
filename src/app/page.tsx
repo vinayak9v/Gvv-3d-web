@@ -1,4 +1,5 @@
 import Hero from '@/components/landing/Hero'
+import VisionCards from '@/components/landing/VisionCards'
 import GarimaImpact from '@/components/landing/GarimaImpact'
 import KnowledgePartners from '@/components/landing/KnowledgePartners'
 import HomeGallery, { type GalleryItem } from '@/components/landing/HomeGallery'
@@ -42,6 +43,7 @@ export default async function Home() {
         <ScrollRefresh />
 
         <Hero />
+        <VisionCards />
         <GarimaImpact lifePhotos={lifePhotos.filter(Boolean)} />
         <KnowledgePartners logos={partnerLogos.filter(Boolean)} />
         <HomeGallery items={gallery} />
